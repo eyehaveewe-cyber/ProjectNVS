@@ -1,4 +1,8 @@
-# How the restoration game fits together
+# Native Godot and browser architecture
+
+The primary project now opens in Godot 4.7.2 through the root `project.godot` and `main.tscn`. The browser architecture below remains available for the original prototype.
+
+# Original browser architecture
 
 Project NVS uses a small browser runtime because the three source projects do not share an engine. MBean1 supplies browser audio ideas, Zendelves supplies browser mesh techniques, and Lifesim supplies Godot simulation rules. The game adapts those parts into JavaScript modules with one owner for restoration state.
 
@@ -66,3 +70,13 @@ Importing the entire source games would bring three runtimes, combat systems, lo
 That choice limits the first playable game to one valley and one faun. Expanding it should begin with new sanctuary data and world content. A full arrangement editor or building system would need its own design before integration.
 
 Exact source references are in [SOURCE_REUSE.md](SOURCE_REUSE.md).
+
+
+## Native Godot edition
+
+`scripts/game.gd` coordinates native input, fixed-step movement, camera, UI, journal, saves and the finale. `scripts/grove_state.gd` ports the existing restoration and Lifesim-derived needs rules. `scripts/faun.gd` animates the same named joint pivots using native Node3D and MeshInstance3D nodes. `scripts/valley.gd` creates native ArrayMesh resources for the included valley and caches damaged, locally healed, and fully renewed region variants. Heart-tree variants follow the restored count. Solid-scenery circles use the original generated placements.
+
+`tools/bake-native.mjs` generates the compressed native mesh asset from `src/geometry.js`, `src/world.js`, and `src/simulation.js`. `tools/bake-native-audio.py` generates native PCM from the MBean-derived authored reed voice. These are development tools. Neither Node nor Python runs inside the Godot game. `scripts/music.gd` plays the included PCM as AudioStreamWAV resources, with finite AudioStreamPlayer voices, preview, mute and ambience.
+
+The native scene loads included assets with FileAccess. The Windows export preset explicitly includes the compressed assets. Native saves use `user://journey.json` with a previous-save backup and are independent of browser localStorage. Godot physics ticks advance movement and needs without the browser frame-time cap identified in the review.
+

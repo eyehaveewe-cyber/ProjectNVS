@@ -6,17 +6,29 @@ A faun carries a set of wooden pipes into a wounded valley. Play the land's reme
 
 ![The faun in the valley](docs/valley-start.jpg)
 
-## Play locally
+## Open in Godot
 
-Use Node.js 20 or later. The game has no package dependencies and needs no install step.
+This repository now includes the native **Godot 4.7.2** project at its root.
+
+1. Download a fresh repository ZIP and extract it completely.
+2. In Godot Project Manager, choose **Import** and select the root `project.godot`.
+3. Open the project and press **F5** to play.
+
+The Godot edition runs the 3D game, animated faun, nine restoration sites, panpipes, camp, journal, map, saves, and final heart song directly. No Node.js, local web server, browser, or extension is required. Native saves are stored in `user://journey.json`, separately from browser saves.
+
+![The native Godot game](docs/godot-gameplay.jpg)
+
+A Windows Desktop export preset is included. Export templates are needed only when exporting a standalone executable, not for opening and playing the project in Godot.
+
+## Browser prototype
+
+The original browser edition remains available. To run it, use Node.js 20 or later:
 
 ```sh
 npm start
 ```
 
-Open [http://localhost:5173](http://localhost:5173), then choose **Begin the journey**. A modern browser with WebGL and Web Audio support is required.
-
-You can also serve this directory with any static HTTP server. Open the game through HTTP or HTTPS. Opening `index.html` through `file://` does not support this ES module setup.
+Open [http://localhost:5173](http://localhost:5173). The Godot edition above is the default path for working on this project.
 
 ## Restore the valley
 
@@ -46,7 +58,7 @@ Energy, comfort, and frustration change the faun's mood. They never prevent move
 
 ## Your journey is saved here
 
-The game automatically saves in the current browser every five seconds, after restoration, and when paused or closed. **Continue** restores your position, sanctuary progress, needs, and ending state. Clearing site data removes that save. A different browser, device, or server origin has a separate save.
+The Godot game saves to its native user folder every five seconds, after restoration, and when paused or closed. The browser prototype saves separately in the current browser. **Continue** restores your position, sanctuary progress, needs, and ending state. Browser site data and native user-folder saves are independent.
 
 ## Watch a place recover
 
@@ -77,3 +89,16 @@ node tests/audio-browser.cjs
 ```
 
 Set `CHROMIUM_PATH` to use an existing browser executable. [Browser results](docs/browser-verification.json), [audio results](docs/audio-verification.json), and [PROGRESS.md](PROGRESS.md) record the verification performed on this version.
+
+
+## Native verification and asset regeneration
+
+Run the native integration test with Godot 4.7.2:
+
+```sh
+godot --headless --path . --script tests/godot_smoke.gd
+```
+
+It exercises the native scene, movement input, all nine sites, the ending, actual save/Continue, malformed save handling, rest, and native PCM audio data. See [Godot verification](docs/godot-verification.json) and [native port notes](docs/GODOT_PORT.md).
+
+Native meshes and generated pipe samples are included in `assets/`. They can be regenerated during development from the browser source with `node tools/bake-native.mjs` and `python tools/bake-native-audio.py`. Regeneration is optional for playing or editing the native gameplay scripts.

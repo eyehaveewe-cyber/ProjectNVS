@@ -1,5 +1,20 @@
 # Project NVS progress
 
+## Native Godot edition correction 2026-10-22
+
+The initial delivery used a browser runtime and omitted the Godot project the user expected. A real native Godot 4.7.2 edition now exists at the repository root.
+
+- [x] Root `project.godot`, playable `main.tscn`, native GDScript gameplay, UI, save system, camera, and character animation.
+- [x] Existing valley and faun geometry reused as native ArrayMesh data. All nine restoration sites, regional regrowth, butterflies, camp, and heart-tree ending carried over.
+- [x] MBean-derived pipe synthesis baked into included native PCM, played by AudioStreamPlayer. No browser or Node runtime required.
+- [x] Godot 4.7.2 editor import and native game boot completed.
+- [x] Native integration checks passed, including keyboard walking, all nine songs, final ceremony, actual save/Continue, malformed save filtering, timed rest, and voice cleanup.
+- [x] Native screenshots rendered with Godot GL Compatibility and inspected. The verification environment used software graphics and a dummy audio driver; PCM signal content was checked, not human listening.
+- [x] Exported resource pack booted separately with included native mesh and audio assets.
+- [x] README now starts with Godot import and F5 instructions. The browser version remains available.
+
+The Channel Hideo design review remains a proposal record. This correction carries over the current restoration rules and does not adopt the proposed new expressive-music mechanics.
+
 ## First playable, 2026-10-22
 
 The first implementation is **Project NVS: The Quiet Bloom**, a provisional title for a faun's musical restoration journey.
@@ -28,3 +43,4 @@ The browser journey uses actual keyboard notes and relocates the player between 
 ## Current limits
 
 This version has one authored valley and one local player. It has no combat, building mode, multiplayer, full music editor, cloud saves, or imported music recordings. The musical instrument is synthesized. Desktop controls are the primary play path, with on-screen note and movement controls for smaller screens.
+
