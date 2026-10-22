@@ -1,0 +1,9 @@
+{
+  "name": "project-nvs-the-quiet-bloom",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A faun heals a wounded valley through live music.",
+  "scripts": { "start": "node tools/serve.mjs", "test": "node --test tests/*.test.mjs", "check": "node tools/check.mjs" },
+  "engines": { "node": ">=20" }
+}

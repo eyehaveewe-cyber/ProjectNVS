@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "browser": "131.0.6778.204",
+  "verification": "Actual Chromium Web Audio graph and analyser output. No human listening assessment.",
+  "checks": {
+    "contextState": "running",
+    "sampleRate": 44100,
+    "unlocked": true,
+    "scheduledNoteAccepted": true,
+    "finiteSamples": true,
+    "rms": 0.04469446724642071,
+    "peakFrequency": 441.4306640625,
+    "pausedVoiceCount": 0,
+    "pausedRunning": false,
+    "naturalReleaseVoiceCount": 0,
+    "scheduledVoiceCount": 4,
+    "stopVoiceCount": 0,
+    "stoppedRunning": false,
+    "noteAfterStop": true,
+    "mutedNoteRejected": true,
+    "mutedVoiceCount": 0,
+    "mutedRms": 0,
+    "ambientVoiceCount": 3,
+    "finalVoiceCount": 0
+  },
+  "pageErrors": []
+}

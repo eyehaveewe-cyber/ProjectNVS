@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "checks": [
+    "WebGL renders a real depth-buffer scene",
+    "Audio context unlocked from Begin gesture",
+    "Arrow movement changes the faun position",
+    "W plays a note instead of walking with pipes raised",
+    "Journal pauses gameplay",
+    "Journal destination returns to gameplay",
+    "Wrong note does not heal a site",
+    "Keyboard melody restores grove-roots",
+    "Keyboard melody restores grove-fungi",
+    "Keyboard melody restores grove-willow",
+    "Keyboard melody restores marsh-spring",
+    "Keyboard melody restores marsh-reeds",
+    "Keyboard melody restores marsh-pool",
+    "Keyboard melody restores orchard-ash",
+    "Keyboard melody restores orchard-stump",
+    "Keyboard melody restores orchard-seeds",
+    "Nine healed sites still require the heart song",
+    "Final heart song completes the journey",
+    "Starting over requires a second click when a save exists",
+    "Continue restores completed journey",
+    "Pause resumes with Escape",
+    "Timed camp rest restores needs",
+    "Mobile controls visible",
+    "Mobile primary controls do not overlap",
+    "No uncaught browser errors"
+  ],
+  "errors": [],
+  "renderer": {
+    "draws": 69,
+    "triangles": 49220
+  },
+  "note": "Keyboard input exercises all melodies. Test mode relocates the player between sanctuaries to keep coverage repeatable; movement is separately exercised."
+}

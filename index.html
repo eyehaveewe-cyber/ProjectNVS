@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#142d28">
+  <meta name="description" content="Become a faun and play the valley back to life. A musical exploration game about restoring corrupted woodland, polluted wetlands, and a burned orchard.">
+  <title>Project NVS · The Quiet Bloom</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <canvas id="world" aria-label="The valley, a three-dimensional world you can explore as a faun"></canvas>
+  <div id="veil" aria-hidden="true"></div>
+
+  <main id="menu" class="menu">
+    <div class="menu-inner">
+      <p class="eyebrow"><span class="sprig" aria-hidden="true">❧</span> Project NVS <span class="rule"></span></p>
+      <h1>The Quiet<br><em>Bloom.</em></h1>
+      <p class="menu-description">The valley has forgotten its song.<br>You are a faun. Play it back to life.</p>
+      <div class="menu-actions">
+        <button type="button" id="begin" class="button-primary">Begin the journey <span aria-hidden="true">↗</span></button>
+        <button type="button" id="continue" class="button-quiet" hidden>Continue your journey <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="menu-controls">
+        <p><kbd>W A S D</kbd> or arrows to wander <span class="control-dot">·</span> Drag to look</p>
+        <p><kbd>Space</kbd> raise your pipes <span class="control-dot">·</span> <kbd>Q W E R T</kbd> play</p>
+      </div>
+      <p class="menu-footnote">A little music. A little care. A living world.</p>
+    </div>
+    <div class="menu-edition"><span class="edition-line"></span> A musical exploration <span class="edition-line"></span></div>
+  </main>
+
+  <div id="hud" hidden>
+    <header class="hud-header">
+      <div class="identity"><span class="identity-mark" aria-hidden="true">❧</span><span>PROJECT NVS<small>The Quiet Bloom</small></span></div>
+      <nav class="hud-tools" aria-label="Game controls">
+        <button type="button" id="journal-toggle" class="tool-button" aria-label="Open field journal, J">Journal <kbd>J</kbd></button>
+        <button type="button" id="sound-toggle" class="tool-button" aria-label="Toggle sound">Sound on</button>
+        <button type="button" id="pause-toggle" class="tool-button" aria-label="Pause game, Escape">Pause <span aria-hidden="true">Ⅱ</span></button>
+      </nav>
+    </header>
+
+    <section class="objective-card" aria-label="Current objective">
+      <p id="region" class="eyebrow">The forgotten valley</p>
+      <h2 id="objective">Listen to the land.</h2>
+      <p id="objective-hint">Follow the paths. Bring your pipes close to a wounded place.</p>
+      <div class="land-progress"><span>Valley restored</span><span id="healed-count">0 / 9</span></div>
+      <progress id="land-meter" max="9" value="0" aria-label="Restored places"></progress>
+    </section>
+
+    <aside class="map-card" aria-label="Valley map">
+      <div class="map-frame"><canvas id="map" width="180" height="180" aria-label="Map showing you and the wounded places"></canvas><span class="map-north" aria-hidden="true">N</span></div>
+      <p>THE VALLEY</p>
+      <div class="map-legend"><span><i class="legend-wound"></i> Wounded</span><span><i class="legend-healed"></i> Restored</span></div>
+    </aside>
+
+    <aside class="wellbeing" aria-label="Faun wellbeing">
+      <div class="wellbeing-heading"><span class="eyebrow">Your spirit</span><span id="mood">Content</span></div>
+      <label for="energy-meter">Energy <progress id="energy-meter" max="1" value="1"></progress></label>
+      <label for="comfort-meter">Comfort <progress id="comfort-meter" max="1" value="1"></progress></label>
+    </aside>
+
+    <p id="context-hint" class="context-hint">W A S D · Wander &nbsp; / &nbsp; Drag · Look &nbsp; / &nbsp; Scroll · Zoom</p>
+
+    <section id="music-panel" class="music-panel" aria-label="Panpipes and melody">
+      <div class="song-information">
+        <p class="eyebrow">The land is listening</p>
+        <h2 id="site-name">Your panpipes</h2>
+        <p id="site-description">Raise your pipes to make a little music.</p>
+        <div id="melody" class="melody" aria-label="Melody to play"></div>
+        <p id="phrase-progress" class="phrase-progress" aria-live="polite"></p>
+      </div>
+      <div class="instrument">
+        <div class="note-keys" role="group" aria-label="Play a note">
+          <button type="button" data-note="0" aria-label="Play C, Q key"><kbd>Q</kbd><span>C</span><i></i></button>
+          <button type="button" data-note="1" aria-label="Play D, W key"><kbd>W</kbd><span>D</span><i></i></button>
+          <button type="button" data-note="2" aria-label="Play E, E key"><kbd>E</kbd><span>E</span><i></i></button>
+          <button type="button" data-note="3" aria-label="Play G, R key"><kbd>R</kbd><span>G</span><i></i></button>
+          <button type="button" data-note="4" aria-label="Play A, T key"><kbd>T</kbd><span>A</span><i></i></button>
+        </div>
+        <div class="instrument-actions">
+          <button type="button" id="pipes-toggle" class="pipes-button">Space · Raise pipes</button>
+          <button type="button" id="listen" class="listen-button" aria-label="Listen to the melody">♪ Hear the melody</button>
+        </div>
+      </div>
+    </section>
+
+    <button type="button" id="interact" class="interact-button" hidden>E · Rest by the fire</button>
+    <div id="touch-move" class="touch-move" role="group" aria-label="Walk">
+      <button type="button" data-move="forward" aria-label="Walk forward">↑</button>
+      <button type="button" data-move="left" aria-label="Walk left">←</button>
+      <button type="button" data-move="back" aria-label="Walk back">↓</button>
+      <button type="button" data-move="right" aria-label="Walk right">→</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <section id="journal" class="dialog-layer" role="dialog" aria-modal="true" aria-labelledby="journal-title" hidden>
+    <div class="journal-sheet">
+      <div class="dialog-heading"><div><p class="eyebrow">A faun's field notes</p><h2 id="journal-title">The living valley</h2></div><button type="button" id="journal-close" class="close-button" aria-label="Close journal">×</button></div>
+      <p class="journal-introduction">Every wounded place remembers a melody. Walk close, listen, and play it back.</p>
+      <div id="journal-content"></div>
+      <p class="journal-footer">Take your time. The valley will wait for you.</p>
+    </div>
+  </section>
+
+  <section id="pause" class="dialog-layer" role="dialog" aria-modal="true" aria-labelledby="pause-title" hidden>
+    <div class="small-dialog">
+      <span class="dialog-sprig" aria-hidden="true">❧</span>
+      <p class="eyebrow">A quiet moment</p><h2 id="pause-title">The valley can wait.</h2>
+      <p>Your journey is saved as you explore.</p>
+      <button type="button" id="resume" class="button-primary">Return to the valley <span aria-hidden="true">→</span></button>
+      <button type="button" id="restart" class="button-quiet">Begin a new journey</button>
+    </div>
+  </section>
+
+  <section id="ending" class="dialog-layer" role="dialog" aria-modal="true" aria-labelledby="ending-title" hidden>
+    <div class="small-dialog ending-dialog">
+      <span class="dialog-sprig" aria-hidden="true">❧</span>
+      <p class="eyebrow">The green returns</p><h2 id="ending-title">A valley,<br><em>singing again.</em></h2>
+      <p>You gave the woodland its roots, the wetlands their clear water, and the orchard a new spring.</p>
+      <p class="ending-note">There is no more silence to mend.<br>Only room for another song.</p>
+      <button type="button" id="return" class="button-primary">Stay a little longer <span aria-hidden="true">→</span></button>
+    </div>
+  </section>
+
+  <section id="error" class="dialog-layer" role="alert" hidden><div class="small-dialog"><p class="eyebrow">The valley could not open</p><h2>A little help is needed.</h2><p id="error-message">Please use a browser with WebGL enabled, then reload the page.</p></div></section>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
