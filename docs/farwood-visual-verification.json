@@ -1,0 +1,15 @@
+{
+  "engine": "4.7.2-stable (official)",
+  "status": "passed",
+  "renderer": "GL Compatibility / Mesa llvmpipe software graphics",
+  "captures": [
+    "farwood-elder-ring.jpg",
+    "farwood-fern-hollow.jpg",
+    "farwood-journal-map.jpg",
+    "farwood-sunwash.jpg",
+    "farwood-willow-pool.jpg",
+    "farwood-wind-stones.jpg"
+  ],
+  "inspection": "All five added landmarks and labeled journal map visually inspected. Elder Ring foreground tree placement revised and recaptured, then collision audit and actual controller traversal rerun successfully.",
+  "limits": "Captures relocate the player and establish appearance. Native controller tests separately establish traversal. No target-hardware frame rate or human first-time navigation assessment is claimed."
+}

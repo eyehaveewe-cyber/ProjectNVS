@@ -6,7 +6,8 @@ import math, struct, base64, gzip, json
 from pathlib import Path
 rate=22050
 tones={}
-for pitch in [38,43,50,53,57,60,62,64,67,69,72,74,76,81]:
+sustains={}
+for pitch in range(36,97):
     frequency=440*2**((pitch-69)/12)
     gate=.48
     release=.2
@@ -29,6 +30,23 @@ for pitch in [38,43,50,53,57,60,62,64,67,69,72,74,76,81]:
         value=max(-1,min(1,(filtered+noise*.025)*env*.19))
         output.append(struct.pack('<h',int(value*32767)))
     tones[str(pitch)]=base64.b64encode(b''.join(output)).decode()
+    # A cycle-aligned harmonic reed loop for held keyboard notes. The loop is
+    # periodic by construction, so there is no click at a repeated sample edge.
+    # Godot applies the attack/release envelope at playback, independently for
+    # each held voice. One loop has eight complete fundamental periods.
+    frames=max(32,round(rate/frequency*8))
+    actual_frequency=rate/frames*8
+    loop=[]
+    for i in range(frames):
+        phase=2*math.pi*i/frames*8
+        # Same reed partial weights as the finite note; a smooth frequency
+        # response approximates the finite bank's low-pass without filter state.
+        cutoff=min(2200,frequency*4.8)
+        body=sum(math.sin(phase*h)*(1 if h%2 else .22)/h**2.15
+                 /math.sqrt(1+(actual_frequency*h/cutoff)**2) for h in range(1,17))
+        loop.append(struct.pack('<h',int(max(-1,min(1,body*.19*.76))*32767)))
+    sustains[str(pitch)]={'data':base64.b64encode(b''.join(loop)).decode(),
+                          'frames':frames,'frequency':actual_frequency}
 target=Path(__file__).resolve().parent.parent/'assets/pipe_bank.nvs.gz'
-target.write_bytes(gzip.compress(json.dumps({'sample_rate':rate,'tones':tones},separators=(',',':')).encode(),compresslevel=9,mtime=0))
+target.write_bytes(gzip.compress(json.dumps({'sample_rate':rate,'tones':tones,'sustains':sustains},separators=(',',':')).encode(),compresslevel=9,mtime=0))
 print(f'Native pipe bank: {target.stat().st_size} bytes, {len(tones)} pitches')

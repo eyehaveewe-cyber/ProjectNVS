@@ -1,0 +1,437 @@
+{
+  "added_trail_length": 1045.26160049438,
+  "authored_distance": 1602.91222286224,
+  "boundary_probes": [
+    {
+      "direction": "(-1.0, 0.0)",
+      "edge": "(-125.0, 110.0)",
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "maximum_axis_extent": 125.0,
+        "stalls": 0,
+        "walked_distance": 4.0
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "maximum_axis_extent": 125.0,
+        "stalls": 0,
+        "walked_distance": 4.0
+      }
+    },
+    {
+      "direction": "(1.0, 0.0)",
+      "edge": "(125.0, -110.0)",
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "maximum_axis_extent": 125.0,
+        "stalls": 0,
+        "walked_distance": 4.0
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "maximum_axis_extent": 125.0,
+        "stalls": 0,
+        "walked_distance": 4.0
+      }
+    },
+    {
+      "direction": "(0.0, -1.0)",
+      "edge": "(-110.0, -125.0)",
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "maximum_axis_extent": 125.0,
+        "stalls": 0,
+        "walked_distance": 4.0
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "maximum_axis_extent": 125.0,
+        "stalls": 0,
+        "walked_distance": 4.0
+      }
+    },
+    {
+      "direction": "(0.0, 1.0)",
+      "edge": "(110.0, 125.0)",
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "maximum_axis_extent": 125.0,
+        "stalls": 0,
+        "walked_distance": 4.0
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "maximum_axis_extent": 125.0,
+        "stalls": 0,
+        "walked_distance": 4.0
+      }
+    }
+  ],
+  "checks": [
+    "Route 1 outward walks every waypoint and reaches its endpoint",
+    "Route 1 outward has no stalls or movement jumps",
+    "Route 1 return walks every waypoint and reaches its endpoint",
+    "Route 1 return has no stalls or movement jumps",
+    "Route 1 returns to its start without relocating",
+    "Route 2 outward walks every waypoint and reaches its endpoint",
+    "Route 2 outward has no stalls or movement jumps",
+    "Route 2 return walks every waypoint and reaches its endpoint",
+    "Route 2 return has no stalls or movement jumps",
+    "Route 2 returns to its start without relocating",
+    "Route 3 outward walks every waypoint and reaches its endpoint",
+    "Route 3 outward has no stalls or movement jumps",
+    "Route 3 return walks every waypoint and reaches its endpoint",
+    "Route 3 return has no stalls or movement jumps",
+    "Route 3 returns to its start without relocating",
+    "Route 4 outward walks every waypoint and reaches its endpoint",
+    "Route 4 outward has no stalls or movement jumps",
+    "Route 4 return walks every waypoint and reaches its endpoint",
+    "Route 4 return has no stalls or movement jumps",
+    "Route 4 returns to its start without relocating",
+    "Route 5 outward walks every waypoint and reaches its endpoint",
+    "Route 5 outward has no stalls or movement jumps",
+    "Route 5 return walks every waypoint and reaches its endpoint",
+    "Route 5 return has no stalls or movement jumps",
+    "Route 5 returns to its start without relocating",
+    "Route 6 outward walks every waypoint and reaches its endpoint",
+    "Route 6 outward has no stalls or movement jumps",
+    "Route 6 return walks every waypoint and reaches its endpoint",
+    "Route 6 return has no stalls or movement jumps",
+    "Route 6 returns to its start without relocating",
+    "Route 7 outward walks every waypoint and reaches its endpoint",
+    "Route 7 outward has no stalls or movement jumps",
+    "Route 7 return walks every waypoint and reaches its endpoint",
+    "Route 7 return has no stalls or movement jumps",
+    "Route 7 returns to its start without relocating",
+    "Route 7 physically reaches beyond the former world edge",
+    "Route 8 outward walks every waypoint and reaches its endpoint",
+    "Route 8 outward has no stalls or movement jumps",
+    "Route 8 return walks every waypoint and reaches its endpoint",
+    "Route 8 return has no stalls or movement jumps",
+    "Route 8 returns to its start without relocating",
+    "Route 8 physically reaches beyond the former world edge",
+    "Route 9 outward walks every waypoint and reaches its endpoint",
+    "Route 9 outward has no stalls or movement jumps",
+    "Route 9 return walks every waypoint and reaches its endpoint",
+    "Route 9 return has no stalls or movement jumps",
+    "Route 9 returns to its start without relocating",
+    "Route 9 physically reaches beyond the former world edge",
+    "Route 10 outward walks every waypoint and reaches its endpoint",
+    "Route 10 outward has no stalls or movement jumps",
+    "Route 10 return walks every waypoint and reaches its endpoint",
+    "Route 10 return has no stalls or movement jumps",
+    "Route 10 returns to its start without relocating",
+    "Route 10 physically reaches beyond the former world edge",
+    "Route 11 outward walks every waypoint and reaches its endpoint",
+    "Route 11 outward has no stalls or movement jumps",
+    "Route 11 return walks every waypoint and reaches its endpoint",
+    "Route 11 return has no stalls or movement jumps",
+    "Route 11 returns to its start without relocating",
+    "Route 11 physically reaches beyond the former world edge",
+    "Outer clearing has walkable exploration away from the marked path",
+    "Fern Hollow off-trail circuit walks every waypoint and reaches its endpoint",
+    "Fern Hollow off-trail circuit has no stalls or movement jumps",
+    "A clear controller lane exists at world edge (-1.0, 0.0)",
+    "Controller reaches expanded world edge (-1.0, 0.0)",
+    "Controller stays inside expanded world edge (-1.0, 0.0)",
+    "Controller returns from expanded world edge (-1.0, 0.0)",
+    "A clear controller lane exists at world edge (1.0, 0.0)",
+    "Controller reaches expanded world edge (1.0, 0.0)",
+    "Controller stays inside expanded world edge (1.0, 0.0)",
+    "Controller returns from expanded world edge (1.0, 0.0)",
+    "A clear controller lane exists at world edge (0.0, -1.0)",
+    "Controller reaches expanded world edge (0.0, -1.0)",
+    "Controller stays inside expanded world edge (0.0, -1.0)",
+    "Controller returns from expanded world edge (0.0, -1.0)",
+    "A clear controller lane exists at world edge (0.0, 1.0)",
+    "Controller reaches expanded world edge (0.0, 1.0)",
+    "Controller stays inside expanded world edge (0.0, 1.0)",
+    "Controller returns from expanded world edge (0.0, 1.0)",
+    "Walking updates the visible faun to the controller's final location",
+    "Traversal leaves the isolated test save disabled"
+  ],
+  "controller_steps": 20408,
+  "engine": "4.7.2-stable (official)",
+  "failures": [],
+  "off_trail_circuit": {
+    "bad_steps": 0,
+    "endpoint_error": 0.0,
+    "label": "Fern Hollow off-trail circuit",
+    "maximum_axis_extent": 101.0,
+    "stalls": 0,
+    "walked_distance": 12.4852814078331,
+    "waypoints_expected": 5,
+    "waypoints_walked": 5
+  },
+  "original_trail_length": 557.650622367859,
+  "routes": [
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 1 outward",
+        "maximum_axis_extent": 58.0,
+        "stalls": 0,
+        "walked_distance": 50.2639289349318,
+        "waypoints_expected": 4,
+        "waypoints_walked": 4
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 1 return",
+        "maximum_axis_extent": 58.0,
+        "stalls": 0,
+        "walked_distance": 50.2639291137457,
+        "waypoints_expected": 4,
+        "waypoints_walked": 4
+      },
+      "route": 1
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0712755620479584,
+        "label": "Route 2 outward",
+        "maximum_axis_extent": 64.9974365234375,
+        "stalls": 0,
+        "walked_distance": 86.1756463944912,
+        "waypoints_expected": 5,
+        "waypoints_walked": 5
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.015814246609807,
+        "label": "Route 2 return",
+        "maximum_axis_extent": 65.0,
+        "stalls": 0,
+        "walked_distance": 86.1585155874491,
+        "waypoints_expected": 5,
+        "waypoints_walked": 5
+      },
+      "route": 2
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 3 outward",
+        "maximum_axis_extent": 62.0,
+        "stalls": 0,
+        "walked_distance": 136.207196727395,
+        "waypoints_expected": 6,
+        "waypoints_walked": 6
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 3 return",
+        "maximum_axis_extent": 62.0,
+        "stalls": 0,
+        "walked_distance": 136.205019131303,
+        "waypoints_expected": 6,
+        "waypoints_walked": 6
+      },
+      "route": 3
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 4 outward",
+        "maximum_axis_extent": 59.0,
+        "stalls": 0,
+        "walked_distance": 106.766477875412,
+        "waypoints_expected": 8,
+        "waypoints_walked": 8
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0111021930351853,
+        "label": "Route 4 return",
+        "maximum_axis_extent": 58.9959259033203,
+        "stalls": 0,
+        "walked_distance": 106.759352587163,
+        "waypoints_expected": 8,
+        "waypoints_walked": 8
+      },
+      "route": 4
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 5 outward",
+        "maximum_axis_extent": 60.0,
+        "stalls": 0,
+        "walked_distance": 115.796883806586,
+        "waypoints_expected": 7,
+        "waypoints_walked": 7
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0701456516981125,
+        "label": "Route 5 return",
+        "maximum_axis_extent": 60.0,
+        "stalls": 0,
+        "walked_distance": 115.764726497233,
+        "waypoints_expected": 7,
+        "waypoints_walked": 7
+      },
+      "route": 5
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 6 outward",
+        "maximum_axis_extent": 55.0,
+        "stalls": 0,
+        "walked_distance": 62.2830078452826,
+        "waypoints_expected": 3,
+        "waypoints_walked": 3
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 6 return",
+        "maximum_axis_extent": 55.0,
+        "stalls": 0,
+        "walked_distance": 62.2830077260733,
+        "waypoints_expected": 3,
+        "waypoints_walked": 3
+      },
+      "route": 6
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 7 outward",
+        "maximum_axis_extent": 109.997406005859,
+        "stalls": 0,
+        "walked_distance": 210.780752778053,
+        "waypoints_expected": 9,
+        "waypoints_walked": 9
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0565351918339729,
+        "label": "Route 7 return",
+        "maximum_axis_extent": 110.0,
+        "stalls": 0,
+        "walked_distance": 210.702013917267,
+        "waypoints_expected": 9,
+        "waypoints_walked": 9
+      },
+      "route": 7
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0693893879652023,
+        "label": "Route 8 outward",
+        "maximum_axis_extent": 107.999977111816,
+        "stalls": 0,
+        "walked_distance": 192.295529000461,
+        "waypoints_expected": 8,
+        "waypoints_walked": 8
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.000492397230118513,
+        "label": "Route 8 return",
+        "maximum_axis_extent": 107.999923706055,
+        "stalls": 0,
+        "walked_distance": 192.315130926669,
+        "waypoints_expected": 8,
+        "waypoints_walked": 8
+      },
+      "route": 8
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 9 outward",
+        "maximum_axis_extent": 110.988082885742,
+        "stalls": 0,
+        "walked_distance": 239.951092585921,
+        "waypoints_expected": 9,
+        "waypoints_walked": 9
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0607731752097607,
+        "label": "Route 9 return",
+        "maximum_axis_extent": 110.99951171875,
+        "stalls": 0,
+        "walked_distance": 239.896495908499,
+        "waypoints_expected": 9,
+        "waypoints_walked": 9
+      },
+      "route": 9
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0696204602718353,
+        "label": "Route 10 outward",
+        "maximum_axis_extent": 114.995300292969,
+        "stalls": 0,
+        "walked_distance": 232.145822115242,
+        "waypoints_expected": 9,
+        "waypoints_walked": 9
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0709382295608521,
+        "label": "Route 10 return",
+        "maximum_axis_extent": 115.0,
+        "stalls": 0,
+        "walked_distance": 232.028488300741,
+        "waypoints_expected": 9,
+        "waypoints_walked": 9
+      },
+      "route": 10
+    },
+    {
+      "outward": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0696217194199562,
+        "label": "Route 11 outward",
+        "maximum_axis_extent": 112.0,
+        "stalls": 0,
+        "walked_distance": 169.777786426246,
+        "waypoints_expected": 6,
+        "waypoints_walked": 6
+      },
+      "return": {
+        "bad_steps": 0,
+        "endpoint_error": 0.0,
+        "label": "Route 11 return",
+        "maximum_axis_extent": 112.0,
+        "stalls": 0,
+        "walked_distance": 169.777786456048,
+        "waypoints_expected": 6,
+        "waypoints_walked": 6
+      },
+      "route": 11
+    }
+  ],
+  "scope": "Every route uses real game._physics_process movement, native collision, normal speed and touch_move input, with one starting relocation per route. Each route is walked forward and backward without relocating between directions. Fern Hollow adds a separate off-trail circuit; four edge probes test clamping and return. Time advances in fixed simulated steps; this is not a frame-rate measurement or human playtest.",
+  "simulated_seconds": 1020.4,
+  "starting_relocations": 11,
+  "status": "passed",
+  "step_seconds": 0.05,
+  "trail_waypoints_requested": 148,
+  "walked_distance": 3249.08387205005
+}

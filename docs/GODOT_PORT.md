@@ -4,6 +4,12 @@
 
 Download a fresh ZIP, extract it, import the root `project.godot` in Godot 4.7.2, then press F5. The main scene is `main.tscn`. Its GDScript builds the procedural 3D world and native UI when played. No browser plugin, WebView, Node server or external runtime is required.
 
+## Woodland update 23 October 2026
+
+The native version now extends beyond the browser prototype. `wildwood.gd` builds the surrounding woodland and trails; `woodland_journey.gd` owns optional discoveries and weather; `woodland_cast.gd` builds animated creatures, dryads and Artemis. `keyboard.gd` adapts the actual MBean1 computer layout. Tab raises/lowers pipes; Space sharpens notes. See the README for all controls.
+
+The audio bank now includes 61 finite chromatic notes and seamless sustains. Native saves are version two; the old sanctuary save fields and version-one defaults remain compatible. Run the music, woodland route and woodland integration tests alongside godot_smoke.gd.
+
 ## Content carried over
 
 The native edition uses the existing faun geometry, named joint pivots, authored valley, three damaged regions, nine phrases, local and region recovery, heart-tree growth, butterflies, camp recovery, map, journal, save/Continue and ending. Restoration remains the original forgiving order-matching game. The Channel Hideo proposals for new expressive healing mechanics are not implemented by this correction.

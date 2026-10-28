@@ -1,6 +1,7 @@
 extends RefCounted
+const Wildwood = preload("res://scripts/wildwood.gd")
 ## Native port of src/simulation.js. Lifesim-derived need rates and mood
-## thresholds are preserved; music remains forgiving note-order matching.
+## thresholds are preserved; music remains forgiving note-order matching. Saves also track woodland discoveries.
 var definitions: Array = []
 var player: Dictionary = {"x":0.0,"z":4.0,"yaw":0.0,"energy":1.0,"comfort":1.0,"frustration":0.0}
 var healed: Array[String] = []
@@ -9,6 +10,12 @@ var active_site: String = ""
 var elapsed: float = 0.0
 var resting: float = 0.0
 var won: bool = false
+var collected: Array[String] = []
+var squirrel_stage: int = 0
+var rain_learned: bool = false
+var wildlife_healed: bool = false
+var artemis_seen: bool = false
+var nursery_watered: bool = false
 
 func nearest(max_distance: float = 4.0) -> Dictionary:
 	var best: Dictionary = {}
@@ -94,7 +101,9 @@ func mood() -> String:
 	return "Content"
 
 func serialize() -> Dictionary:
-	return {"version":1,"player":player.duplicate(),"healed":healed.duplicate(),"elapsed":elapsed,"won":won}
+	return {"version":2,"player":player.duplicate(),"healed":healed.duplicate(),"elapsed":elapsed,"won":won,
+		"collected":collected.duplicate(),"squirrel_stage":squirrel_stage,"rain_learned":rain_learned,
+		"wildlife_healed":wildlife_healed,"artemis_seen":artemis_seen,"nursery_watered":nursery_watered}
 
 func restore(value: Variant) -> void:
 	if not value is Dictionary:
@@ -106,7 +115,7 @@ func restore(value: Variant) -> void:
 			if key in ["energy","comfort","frustration"]:
 				player[key] = clampf(float(item),0.0,1.0)
 			elif key in ["x","z"]:
-				player[key] = clampf(float(item),-26.2,26.2)
+				player[key] = clampf(float(item),-Wildwood.BOUNDS,Wildwood.BOUNDS)
 			else:
 				player[key] = clampf(float(item),-10000.0,10000.0)
 	if value.get("healed",[]) is Array:
@@ -118,3 +127,15 @@ func restore(value: Variant) -> void:
 	if (clock is int or clock is float) and is_finite(float(clock)):
 		elapsed = clampf(float(clock),0.0,1000000000.0)
 	won = value.get("won",false) == true and healed.size() == 9
+
+	if value.get("collected",[]) is Array:
+		for id in value.get("collected",[]):
+			if id is String and id.begins_with("seed_") and id.substr(5).is_valid_int():
+				var number: int = id.substr(5).to_int()
+				if number >= 0 and number < Wildwood.COLLECTIBLE_POSITIONS.size() and id == "seed_%02d" % number and not collected.has(id):
+					collected.append(id)
+	var stage: Variant = value.get("squirrel_stage",0)
+	if stage is int or stage is float:
+		if is_finite(float(stage)): squirrel_stage = clampi(int(stage),0,5)
+	for flag in ["rain_learned","wildlife_healed","artemis_seen","nursery_watered"]:
+		set(flag,value.get(flag,false) == true)

@@ -35,7 +35,7 @@ func _run() -> void:
 	check("Native faun has all animated joints",game.faun.joints.size()==7)
 	check("World includes native mesh surfaces",game.valley.heart.mesh.get_surface_count()==1)
 	check("Solid scenery has matching colliders",game.valley.colliders.size()>100)
-	check("Native MBean pipe bank contains playable notes",game.music.tones.size()==14)
+	check("Native MBean pipe bank contains playable notes",game.music.tones.size()==61)
 	var wave: AudioStreamWAV = game.music.tones[69]
 	var maximum: int = 0
 	for i in range(0,wave.data.size(),2):
@@ -57,15 +57,15 @@ func _run() -> void:
 	Input.parse_input_event(movement)
 	game.set_pipes(false)
 	var press := InputEventKey.new()
-	press.physical_keycode = KEY_SPACE
-	press.keycode = KEY_SPACE
+	press.physical_keycode = KEY_TAB
+	press.keycode = KEY_TAB
 	press.pressed = true
 	Input.parse_input_event(press)
 	await process_frame
-	check("Native Space input raises the pipes",game.playing)
+	check("Native Tab input raises the pipes",game.playing)
 	var release := InputEventKey.new()
-	release.physical_keycode = KEY_SPACE
-	release.keycode = KEY_SPACE
+	release.physical_keycode = KEY_TAB
+	release.keycode = KEY_TAB
 	release.pressed = false
 	Input.parse_input_event(release)
 	var completed: int = 0

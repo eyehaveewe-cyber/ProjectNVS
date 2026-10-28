@@ -6,14 +6,23 @@ const Valley = preload("res://scripts/valley.gd")
 const Faun = preload("res://scripts/faun.gd")
 const Music = preload("res://scripts/music.gd")
 const Map = preload("res://scripts/minimap.gd")
+const Keyboard = preload("res://scripts/keyboard.gd")
+const Journey = preload("res://scripts/woodland_journey.gd")
 const PITCHES: Array[int] = [60,62,64,67,69]
-const NOTE_NAMES: Array[String] = ["Q","W","E","R","T"]
+const NOTE_NAMES: Array[String] = ["Q","W","E","U","I"]
 const HEART: Array[int] = [0,2,3,4,3,2,0]
 const SAVE_PATH = "user://journey.json"
 var state: RefCounted
 var valley: Node3D
 var faun: Node3D
 var body: Node3D
+var journey: Node3D
+var octave: int = 3
+var held_keys: Dictionary = {}
+var octave_modifiers: Dictionary = {}
+var keyboard_buttons: Dictionary = {}
+var keyboard_caption: Label
+var hide_hints: bool = false
 var music: Node
 var camera: Camera3D
 var started: bool = false
@@ -60,7 +69,6 @@ var pipe_button: Button
 var listen_button: Button
 var rest_button: Button
 var sound_button: Button
-var note_buttons: Array[Button] = []
 var map: Control
 var buttons_row: HBoxContainer
 var move_controls: Control
@@ -81,7 +89,7 @@ func _ready() -> void:
 	valley.data.erase("faun")
 	camera = Camera3D.new()
 	camera.fov = 54
-	camera.far = 180
+	camera.far = valley.bounds*3.0
 	add_child(camera)
 	camera.current = true
 	var environment := WorldEnvironment.new()
@@ -92,6 +100,9 @@ func _ready() -> void:
 	add_child(environment)
 	music = Music.new()
 	add_child(music)
+	journey = Journey.new()
+	add_child(journey)
+	journey.configure(self)
 	_make_effects()
 	_build_ui()
 	_show_menu()
@@ -159,8 +170,8 @@ func _physics_process(delta: float) -> void:
 		state.resting = 0.0
 		var direction := Vector2(movement.x*cos(camera_yaw)+movement.y*sin(camera_yaw),-movement.x*sin(camera_yaw)+movement.y*cos(camera_yaw))
 		var speed: float = 4.5 if Input.is_physical_key_pressed(KEY_SHIFT) else 3.2
-		var nx: float = clampf(float(state.player.x)+direction.x*speed*delta,-26.2,26.2)
-		var nz: float = clampf(float(state.player.z)+direction.y*speed*delta,-26.2,26.2)
+		var nx: float = clampf(float(state.player.x)+direction.x*speed*delta,-valley.bounds,valley.bounds)
+		var nz: float = clampf(float(state.player.z)+direction.y*speed*delta,-valley.bounds,valley.bounds)
 		if valley.is_clear(nx,float(state.player.z)):
 			state.player.x = nx
 		if valley.is_clear(float(state.player.x),nz):
@@ -171,7 +182,9 @@ func _physics_process(delta: float) -> void:
 	body.position = Vector3(float(state.player.x),Valley.height_at(float(state.player.x),float(state.player.z)),float(state.player.z))
 	body.rotation.y = float(state.player.yaw)
 	faun.animate(delta,walking,playing,state.resting>0,clock)
-	music.tick(delta)
+	journey.tick(delta,clock)
+	music.region = region.text
+	if not playing: music.tick(delta)
 	update_hud()
 
 func _process(delta: float) -> void:
@@ -213,6 +226,14 @@ func _update_camera(delta: float) -> void:
 	valley.material.set_shader_parameter("faun_focus",focus)
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and not event.pressed:
+		var key: int = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+		if held_keys.has(key):
+			var pitch: int = held_keys[key]
+			held_keys.erase(key)
+			if not held_keys.values().has(pitch): music.note_off(pitch)
+		var modifier: String = str(key)+":"+str(event.location)
+		octave_modifiers.erase(modifier)
 	if event is InputEventMouseButton and not event.pressed:
 		dragging = false
 
@@ -227,14 +248,24 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		if paused:
 			return
-		if key == KEY_SPACE:
+		if key == KEY_TAB:
 			set_pipes(not playing)
+			get_viewport().set_input_as_handled()
+		elif playing:
+			if key in [KEY_PAGEUP,KEY_PAGEDOWN]:
+				octave = clampi(octave+(1 if key==KEY_PAGEUP else -1),1,6)
+			elif key in [KEY_CTRL,KEY_SHIFT,KEY_CAPSLOCK]:
+				octave_modifiers[str(key)+":"+str(event.location)] = Keyboard.octave_for_modifier(key,event.location)
+			else:
+				var pitch: int = Keyboard.pitch_for_key(key,_current_octave(),Input.is_physical_key_pressed(KEY_SPACE))
+				if pitch>=0 and not held_keys.has(key):
+					held_keys[key] = pitch
+					play_midi(pitch,true)
+			get_viewport().set_input_as_handled()
 		elif key == KEY_J:
 			show_journal()
-		elif playing and key in [KEY_Q,KEY_W,KEY_E,KEY_R,KEY_T]:
-			play_note([KEY_Q,KEY_W,KEY_E,KEY_R,KEY_T].find(key))
 		elif key == KEY_E:
-			rest()
+			if not journey.interact(): rest()
 	if paused:
 		return
 	if event is InputEventMouseButton and event.pressed:
@@ -257,6 +288,8 @@ func _notification(what: int) -> void:
 
 func new_game(resume: bool = false) -> void:
 	music.stop()
+	held_keys.clear()
+	octave_modifiers.clear()
 	state = State.new()
 	state.definitions = valley.definitions
 	if resume:
@@ -278,36 +311,58 @@ func new_game(resume: bool = false) -> void:
 	menu.hide()
 	modal.hide()
 	hud.show()
-	valley.set_healed(state.healed)
+	valley.set_healed(state.healed,true)
+	journey.reset()
 	music.restoration = float(state.healed.size())/9.0
 	set_pipes(false)
 	body.position = Vector3(float(state.player.x),Valley.height_at(float(state.player.x),float(state.player.z)),float(state.player.z))
 	body.rotation.y = float(state.player.yaw)
 	_update_camera(1.0)
 	save_game()
-	_toast("Follow a pale path to a wounded place. Space raises your pipes.")
+	_toast("Follow a pale path to a wounded place. Tab raises your pipes.")
+
+func _current_octave() -> int:
+	return int(octave_modifiers.values().back()) if not octave_modifiers.is_empty() else octave
 
 func set_pipes(value: bool) -> void:
+	music.release_all()
+	held_keys.clear()
+	octave_modifiers.clear()
 	playing = value
+	journey.rain_phrase.clear()
+	journey.animal_phrase.clear()
 	state.resting = 0
 	heart_phrase.clear()
 	state.sequence.clear()
 	state.active_site = ""
-	pipe_button.text = "Space · Lower pipes" if playing else "Space · Raise pipes"
+	pipe_button.text = "Tab · Lower pipes" if playing else "Tab · Raise pipes"
 	update_hud()
 
 func _at_heart() -> bool:
 	return state.healed.size()==9 and Vector2(float(state.player.x),float(state.player.z)).length()<4 and not state.won
 
 func play_note(index: int) -> void:
-	if not started or paused:
+	if index>=0 and index<PITCHES.size(): play_midi(PITCHES[index])
+
+func play_midi(pitch: int, held: bool = false) -> void:
+	if not started or paused: return
+	if not playing: set_pipes(true)
+	if held: music.note_on(pitch,0.65)
+	else: music.play_note(pitch,0.65)
+	if keyboard_buttons.has(pitch):
+		var button: Button = keyboard_buttons[pitch]
+		button.modulate = Color("#efce88")
+		create_tween().tween_property(button,"modulate",Color.WHITE,0.25)
+	_burst(body.position,2)
+	if journey.play_pitch(pitch):
+		update_hud()
 		return
-	if not playing:
-		set_pipes(true)
-	music.play_note(PITCHES[index])
-	note_buttons[index].modulate = Color("#efce88")
-	create_tween().tween_property(note_buttons[index],"modulate",Color.WHITE,0.25)
-	_burst(body.position,3)
+	var index: int = PITCHES.find(60+posmod(pitch-60,12))
+	if index<0:
+		state.sequence.clear()
+		heart_phrase.clear()
+		update_hud()
+		return
 	if _at_heart():
 		if index == HEART[heart_phrase.size()]:
 			heart_phrase.append(index)
@@ -326,6 +381,8 @@ func play_note(index: int) -> void:
 		valley.set_healed(state.healed)
 		music.restoration = float(state.healed.size())/9.0
 		var site: Dictionary = result.site
+		journey.cast.celebrate(site)
+		music.melody([60,64,67,72,76,79],0.13)
 		_burst(Vector3(float(site.x),Valley.height_at(float(site.x),float(site.z)),float(site.z)),32)
 		_toast(str(site.name)+" is alive again. %d of 9 sanctuaries restored." % state.healed.size())
 		if state.healed.size()==9:
@@ -346,8 +403,10 @@ func rest() -> void:
 	if not started or paused:
 		return
 	if state.start_rest():
+		music.release_all()
+		held_keys.clear()
 		playing = false
-		pipe_button.text = "Space · Raise pipes"
+		pipe_button.text = "Tab · Raise pipes"
 		_toast("Rest beside the lantern for four seconds.")
 
 func _target() -> Dictionary:
@@ -379,9 +438,9 @@ func update_hud() -> void:
 			kind = "scorch"
 	region.text = {"corruption":"THE HOLLOW WOOD","pollution":"THE BITTER MARSH","scorch":"THE EMBER ORCHARD"}.get(kind,"THE LANTERN CLEARING")
 	objective.text = "The valley sings again" if state.won else "Return to the heart tree" if state.healed.size()==9 else "Let the land hear you" if not site.is_empty() else "Find the wounded sanctuaries"
-	objective_hint.text = str(site.name)+" · Space raises your pipes" if not site.is_empty() else str(target.name)+" · follow your map" if not target.is_empty() else "Play freely in the restored valley."
+	objective_hint.text = str(site.name)+" · Tab raises your pipes" if not site.is_empty() else str(target.name)+" · follow your map" if not target.is_empty() else "Play freely in the restored valley."
 	progress.value = state.healed.size()
-	count_label.text = "%d / 9 sanctuaries" % state.healed.size()
+	count_label.text = "%d / 9 sanctuaries   ·   %d / %d wild seeds" % [state.healed.size(),state.collected.size(),journey.seeds.size()]
 	energy.value = float(state.player.energy)
 	comfort.value = float(state.player.comfort)
 	mood.text = state.mood()
@@ -403,16 +462,43 @@ func update_hud() -> void:
 	var letters := PackedStringArray()
 	for i in expected.size():
 		letters.append(("✓ " if i<matched else "")+NOTE_NAMES[int(expected[i])])
-	phrase.text = "  ·  ".join(letters) if not letters.is_empty() else "Five pipes. A valley to wake."
-	listen_button.visible = not expected.is_empty()
+	phrase.text = "  ·  ".join(letters) if not letters.is_empty() else "Hold notes. Play chords. The woods will listen."
+	if hide_hints and not expected.is_empty(): phrase.text = "Listen first, then answer. Show hints whenever you like."
+	listen_button.visible = not expected.is_empty() or journey.near_oil() or state.rain_learned
+	if journey.near_oil():
+		song.text = "A fox beneath the oil"
+		description.text = "Let its coat breathe again. Listen, then answer at your own pace."
+		phrase.text = "E · W · Q · W · E · U" if not hide_hints else "Listen first, then answer."
+	elif site.is_empty() and state.rain_learned:
+		phrase.text = "Raincall · W R I U R W   (D F A G F D)"
+	if absf(float(state.player.x))>28 or absf(float(state.player.z))>28:
+		region.text = valley.expansion.region_name(Vector2(float(state.player.x),float(state.player.z)))
+		objective.text = "Stay a little longer"
+		objective_hint.text = "Outer trails loop through Fern Hollow, Wind Stones, Willow Pool and the Elder Ring."
+		if maxf(absf(float(state.player.x)),absf(float(state.player.z)))<70:
+			objective_hint.text = "Follow the squirrel northwest, or take a signed trail into the farther woodland."
+	for button: Button in keyboard_buttons.values():
+		var p: int = Keyboard.pitch_for_key(int(button.get_meta("keycode")),_current_octave(),Input.is_physical_key_pressed(KEY_SPACE))
+		button.text = Keyboard.key_name(int(button.get_meta("keycode")))+" "+Keyboard.note_name(p)
+	keyboard_caption.text = "MBean1 keys · base C%d · Space adds sharps · PgUp/PgDn octaves" % _current_octave()
 	rest_button.visible = Vector2(float(state.player.x),float(state.player.z)-4.0).length()<=3
 	rest_button.text = "Resting… %ds" % ceili(state.resting) if state.resting>0 else "E · Rest by the lantern"
-	context.text = "Q W E R T play · Space lowers pipes" if playing else "W A S D / arrows walk · Drag to look · Wheel to zoom · J journal"
+	context.text = "MBean1 rows play · Space sharpens · Tab lowers pipes" if playing else "W A S D / arrows walk · Shift brisk walk · Tab pipes · E talk · J journal"
+	if not playing and not journey.hint().is_empty(): context.text = journey.hint()
 
 func listen() -> void:
+	if paused or not started: return
+	music.stop()
+	held_keys.clear()
+	if journey.near_oil():
+		music.melody(journey.CLEANSE)
+		return
 	var notes: Array = []
 	var site: Dictionary = state.nearest()
 	var expected: Array = HEART if _at_heart() else site.get("sequence",[])
+	if expected.is_empty() and state.rain_learned:
+		music.melody(journey.RAIN)
+		return
 	for index in expected:
 		notes.append(PITCHES[int(index)])
 	music.melody(notes)
@@ -517,31 +603,42 @@ func _build_ui() -> void:
 	map.game = self
 	map.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud.add_child(map)
-	music_panel = _panel(hud,Vector2.ZERO,Vector2(840,174))
+	music_panel = _panel(hud,Vector2.ZERO,Vector2(1100,230))
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation",24)
+	row.add_theme_constant_override("separation",20)
 	music_panel.add_child(row)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	info.custom_minimum_size.x = 400
+	info.custom_minimum_size.x = 360
 	row.add_child(info)
 	_label(info,"THE LAND IS LISTENING",10,Color("#d4bc7f"))
-	song = _label(info,"Carry a little music",24)
+	song = _label(info,"Carry a little music",23)
 	description = _label(info,"",12)
-	phrase = _label(info,"",18,Color("#e6cc8d"))
+	phrase = _label(info,"",17,Color("#e6cc8d"))
+	pipe_button = _button(info,"Tab · Raise pipes",func() -> void: set_pipes(not playing))
+	var options := HBoxContainer.new()
+	info.add_child(options)
+	listen_button = _button(options,"Hear the melody",listen)
+	_button(options,"Toggle note hints",func() -> void:
+		hide_hints = not hide_hints
+		update_hud())
 	var instrument := VBoxContainer.new()
-	instrument.custom_minimum_size.x = 280
+	instrument.custom_minimum_size.x = 620
 	row.add_child(instrument)
-	var keys := HBoxContainer.new()
-	instrument.add_child(keys)
-	for i in 5:
-		var index: int = i
-		var button := _button(keys,NOTE_NAMES[i]+"\n"+["C","D","E","G","A"][i],func() -> void: play_note(index))
-		button.custom_minimum_size = Vector2(49,70-i*4)
-		button.add_theme_color_override("font_color",Color("#f1d99d"))
-		note_buttons.append(button)
-	pipe_button = _button(instrument,"Space · Raise pipes",func() -> void: set_pipes(not playing))
-	listen_button = _button(instrument,"♪ Hear the melody",listen)
+	keyboard_caption = _label(instrument,"MBean1 keyboard",12)
+	for key_row in Keyboard.rows():
+		var keys := HBoxContainer.new()
+		instrument.add_child(keys)
+		for entry in key_row["keys"]:
+			var keycode: int = entry.keycode
+			var pitch: int = entry.pitch
+			var button := _button(keys,str(entry.key)+" "+str(entry.note),func() -> void:
+				play_midi(Keyboard.pitch_for_key(keycode,_current_octave(),Input.is_physical_key_pressed(KEY_SPACE))))
+			button.custom_minimum_size = Vector2(70,31)
+			button.add_theme_font_size_override("font_size",12)
+			button.set_meta("keycode",keycode)
+			keyboard_buttons[pitch] = button
+	_label(instrument,"Hold Space for sharps. Hold L/R Shift or Ctrl for MBean octaves. Tab toggles pipes.",11)
 	context = _label(hud,"",12)
 	context.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	rest_button = _button(hud,"E · Rest by the lantern",rest)
@@ -563,7 +660,7 @@ func _build_ui() -> void:
 		_button(menu_list,"Continue your journey",func() -> void: new_game(true))
 	var begin_button := _button(menu_list,"Begin the journey",func() -> void: _confirm_new_game())
 	begin_button.set_meta("new_game_button",true)
-	_label(menu_list,"W A S D / arrows · Walk\nDrag · Look    Wheel · Zoom\nSpace · Raise pipes    Q W E R T · Play\nE · Rest    J · Journal    Esc · Pause",13,Color("#c4cfb5"))
+	_label(menu_list,"W A S D / arrows · Walk\nDrag · Look    Wheel · Zoom\nTab · Pipes    MBean1 rows · Play\nE · Rest    J · Journal    Esc · Pause",13,Color("#c4cfb5"))
 	_label(menu_list,"Native Godot 4.7.2 · Press F5 in the editor",12)
 	modal = Control.new()
 	modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -600,14 +697,14 @@ func _layout_ui() -> void:
 	if hud == null:
 		return
 	var size: Vector2 = get_viewport().get_visible_rect().size
-	music_panel.position = Vector2((size.x-840)/2,size.y-194)
-	needs_panel.position = Vector2(24,size.y-326)
+	music_panel.position = Vector2((size.x-1100)/2,size.y-250)
+	needs_panel.position = Vector2(24,size.y-390)
 	buttons_row.position = Vector2(size.x-345,24)
 	map.position = Vector2(size.x-194,88)
 	map.size = Vector2(166,166)
-	context.position = Vector2((size.x-840)/2,size.y-218)
-	context.size = Vector2(840,20)
-	rest_button.position = Vector2(size.x/2-112,size.y-260)
+	context.position = Vector2((size.x-1100)/2,size.y-275)
+	context.size = Vector2(1100,20)
+	rest_button.position = Vector2(size.x/2-112,size.y-315)
 	rest_button.size = Vector2(224,36)
 	toast_label.position = Vector2(size.x/2-260,80)
 	toast_label.size = Vector2(520,60)
@@ -637,6 +734,8 @@ func _confirm_new_game() -> void:
 
 func _open_modal() -> void:
 	paused = true
+	held_keys.clear()
+	octave_modifiers.clear()
 	warned_restart = false
 	touch_move = Vector2.ZERO
 	music.stop()
@@ -666,7 +765,25 @@ func _restart_from_pause() -> void:
 func show_journal() -> void:
 	_open_modal()
 	_label(modal_box,"The living valley",31)
-	_label(modal_box,"Walk to a sanctuary. Listen, then play its displayed keys at your own pace.",16)
+	_label(modal_box,"Walk to a sanctuary. Listen, then play at your own pace. Hide note hints to learn by ear.",16)
+	var map_center := CenterContainer.new()
+	modal_box.add_child(map_center)
+	var overview := Map.new()
+	overview.name = "WoodlandOverview"
+	overview.game = self
+	overview.map_size = 420.0
+	overview.label_clearings = true
+	overview.custom_minimum_size = Vector2(420,420)
+	overview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	map_center.add_child(overview)
+	_label(modal_box,"Wandering wood",23)
+	_label(modal_box,"%d / %d wild seeds. Optional discoveries never block sanctuary healing." % [state.collected.size(),journey.seeds.size()],15)
+	_label(modal_box,"Squirrel trail: northwest of Hollow Wood, then follow silver fern markers to Moonmere. "+("Raincall learned: W R I U R W." if state.rain_learned else "The squirrel carries a rain song."),15)
+	_label(modal_box,"Reedwater Bend to the east: an oiled fox. Dryad Glade to the west: a voice among the trees. Stump nursery southwest: a place for rain. Restore three sanctuaries, then visit Moon Meadow to the south for Artemis.",15)
+	_label(modal_box,"Farther woodland",23)
+	_label(modal_box,"The outer walks form a connected loop. Moonmere leads to Fern Hollow and the Wind Stones. Continue east to Willow Pool, south through Sunwash Meadow, then west to the Elder Ring. Return paths lead to the Listening Stones, Reedwater, Artemis' Meadow and the stump nursery.",15)
+	_label(modal_box,"Pale trails and wooden signs mark the way. Twelve more wild seeds invite short detours. Every outer path is open from the start; the nine sanctuaries still complete the main journey.",15)
+	_label(modal_box,"Sanctuaries",23)
 	for site in state.definitions:
 		var id: String = site.id
 		var restored: bool = state.healed.has(id)
