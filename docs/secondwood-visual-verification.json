@@ -1,0 +1,16 @@
+{
+  "captures": [
+    "secondwood-level-select.jpg",
+    "secondwood-turning-glade.jpg",
+    "secondwood-routes-locked.jpg",
+    "secondwood-western-curl.jpg",
+    "secondwood-source-before.jpg",
+    "secondwood-source-after.jpg",
+    "secondwood-routes-open.jpg",
+    "secondwood-complete.jpg"
+  ],
+  "display": "X11",
+  "engine": "4.7.2-stable (official)",
+  "scope": "Native visual captures use isolated saves, explicit relocations and arranged state. They establish appearance. Separate progression and controller reports exercise the real journey.",
+  "status": "passed"
+}

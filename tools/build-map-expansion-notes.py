@@ -33,6 +33,8 @@ assert traversal["authored_distance"] > 1600.0
 assert any("continue" in check.lower() and "outer" in check.lower() for check in journey["checks"])
 
 doc = Document(OUTPUT)
+if doc.core_properties.version and float(doc.core_properties.version) > 0.3:
+    raise SystemExit("This historical builder cannot overwrite later design addenda. Use the current chapter builder.")
 for paragraph in list(doc.paragraphs):
     if paragraph.text in [APPENDIX, "Map expansion on 27 October 2026"]:
         element = paragraph._p

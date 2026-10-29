@@ -752,8 +752,14 @@ func show_pause() -> void:
 	_label(modal_box,"The valley can wait.",31)
 	_label(modal_box,"Your journey is saved as you explore.",16)
 	_button(modal_box,"Return to the valley",resume_game)
+	_button(modal_box,"Choose a level",return_to_level_select)
 	var restart := _button(modal_box,"Start a new journey",_restart_from_pause)
 	restart.name = "RestartJourney"
+
+func return_to_level_select() -> void:
+	save_game()
+	music.stop()
+	get_tree().change_scene_to_file("res://start.tscn")
 
 func _restart_from_pause() -> void:
 	if not warned_restart:

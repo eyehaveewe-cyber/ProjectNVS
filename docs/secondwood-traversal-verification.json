@@ -1,0 +1,273 @@
+{
+  "centerline_samples": 2233,
+  "checks": [
+    "Second wood has long authored branching and curling walks",
+    "Added shortcuts are shorter traversable connections",
+    "Initial physical floor connects entrance, keeper and all three visible wounds",
+    "Both initial long branches are physically reachable before healing",
+    "Full-floor reachability cannot bypass the first ability gate",
+    "Full-floor reachability cannot bypass the final all-healed gate",
+    "Healing the source connects the northern item through actual floor",
+    "The source alone still cannot reach the final grove",
+    "All land healed connects every discovery and final grove",
+    "Progression increases reachable floor rather than merely removing a label",
+    "source-cut changes blocked ground into a usable return",
+    "hollow-cut changes blocked ground into a usable return",
+    "ash-cut changes blocked ground into a usable return",
+    "Long-frame movement cannot tunnel through a closed northern walk",
+    "Distant unmarked terrain and outside-world points stay behind banks",
+    "arrival outward physically reaches every waypoint",
+    "arrival outward never stalls or crosses its visible bank",
+    "arrival return physically reaches every waypoint",
+    "arrival return never stalls or crosses its visible bank",
+    "arrival returns to its start without another relocation",
+    "source-approach outward physically reaches every waypoint",
+    "source-approach outward never stalls or crosses its visible bank",
+    "source-approach return physically reaches every waypoint",
+    "source-approach return never stalls or crosses its visible bank",
+    "source-approach returns to its start without another relocation",
+    "hollow-approach outward physically reaches every waypoint",
+    "hollow-approach outward never stalls or crosses its visible bank",
+    "hollow-approach return physically reaches every waypoint",
+    "hollow-approach return never stalls or crosses its visible bank",
+    "hollow-approach returns to its start without another relocation",
+    "ash-approach outward physically reaches every waypoint",
+    "ash-approach outward never stalls or crosses its visible bank",
+    "ash-approach return physically reaches every waypoint",
+    "ash-approach return never stalls or crosses its visible bank",
+    "ash-approach returns to its start without another relocation",
+    "western-curl outward physically reaches every waypoint",
+    "western-curl outward never stalls or crosses its visible bank",
+    "western-curl return physically reaches every waypoint",
+    "western-curl return never stalls or crosses its visible bank",
+    "western-curl returns to its start without another relocation",
+    "eastern-curl outward physically reaches every waypoint",
+    "eastern-curl outward never stalls or crosses its visible bank",
+    "eastern-curl return physically reaches every waypoint",
+    "eastern-curl return never stalls or crosses its visible bank",
+    "eastern-curl returns to its start without another relocation",
+    "northern-spiral outward physically reaches every waypoint",
+    "northern-spiral outward never stalls or crosses its visible bank",
+    "northern-spiral return physically reaches every waypoint",
+    "northern-spiral return never stalls or crosses its visible bank",
+    "northern-spiral returns to its start without another relocation",
+    "final-curl outward physically reaches every waypoint",
+    "final-curl outward never stalls or crosses its visible bank",
+    "final-curl return physically reaches every waypoint",
+    "final-curl return never stalls or crosses its visible bank",
+    "final-curl returns to its start without another relocation",
+    "source-cut outward physically reaches every waypoint",
+    "source-cut outward never stalls or crosses its visible bank",
+    "source-cut return physically reaches every waypoint",
+    "source-cut return never stalls or crosses its visible bank",
+    "source-cut returns to its start without another relocation",
+    "hollow-cut outward physically reaches every waypoint",
+    "hollow-cut outward never stalls or crosses its visible bank",
+    "hollow-cut return physically reaches every waypoint",
+    "hollow-cut return never stalls or crosses its visible bank",
+    "hollow-cut returns to its start without another relocation",
+    "ash-cut outward physically reaches every waypoint",
+    "ash-cut outward never stalls or crosses its visible bank",
+    "ash-cut return physically reaches every waypoint",
+    "ash-cut return never stalls or crosses its visible bank",
+    "ash-cut returns to its start without another relocation",
+    "Traversal leaves the isolated save disabled"
+  ],
+  "controller_steps": 13382,
+  "engine": "4.7.2-stable (official)",
+  "failures": [],
+  "path_length": 971.319418907166,
+  "reachable_floor_cells": {
+    "all_healed": 5846,
+    "initial": 3292,
+    "source_healed": 4676
+  },
+  "route_starting_relocations": 11,
+  "routes": [
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 28.2879465594888,
+        "waypoints": 3
+      },
+      "id": "arrival",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 28.2879465445876,
+        "waypoints": 3
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 21.2132033333182,
+        "waypoints": 2
+      },
+      "id": "source-approach",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 21.2132033184171,
+        "waypoints": 2
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 27.0400011390448,
+        "waypoints": 2
+      },
+      "id": "hollow-approach",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 27.0266751199961,
+        "waypoints": 2
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 46.2000004202127,
+        "waypoints": 3
+      },
+      "id": "ash-approach",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 46.2011232376099,
+        "waypoints": 3
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 220.786733567715,
+        "waypoints": 12
+      },
+      "id": "western-curl",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 220.808021634817,
+        "waypoints": 12
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 225.636440373957,
+        "waypoints": 11
+      },
+      "id": "eastern-curl",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 225.635178975761,
+        "waypoints": 11
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 232.181083403528,
+        "waypoints": 11
+      },
+      "id": "northern-spiral",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 232.177843913436,
+        "waypoints": 11
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 169.774429365993,
+        "waypoints": 8
+      },
+      "id": "final-curl",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 169.736152112484,
+        "waypoints": 8
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 35.0097312480211,
+        "waypoints": 3
+      },
+      "id": "source-cut",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 34.9799420684576,
+        "waypoints": 3
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 28.1184215322137,
+        "waypoints": 3
+      },
+      "id": "hollow-cut",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 28.1184216216207,
+        "waypoints": 3
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 34.4096650257707,
+        "waypoints": 3
+      },
+      "id": "ash-cut",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 34.4098980352283,
+        "waypoints": 3
+      }
+    }
+  ],
+  "scope": "Unit-grid full-floor flood fills test physical gate reachability and accidental spatial bypasses at three progression states. Half-unit samples audit authored centerlines. Controller sweeps use explicit completed-state fixtures, one relocation per route, and walk each route forward and backward; a separate real progression test earns that state continuously. These are not first-time navigation or hardware performance measurements.",
+  "shortcut_length": 97.5416793823242,
+  "shortcut_samples": [
+    {
+      "id": "source-cut",
+      "new_walkable_samples": 24
+    },
+    {
+      "id": "hollow-cut",
+      "new_walkable_samples": 18
+    },
+    {
+      "id": "ash-cut",
+      "new_walkable_samples": 29
+    }
+  ],
+  "simulated_seconds": 669.1,
+  "status": "passed",
+  "total_authored_length": 1068.86109828949,
+  "walked_distance": 2137.25206255168
+}

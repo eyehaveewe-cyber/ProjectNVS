@@ -1,0 +1,299 @@
+{
+  "checks": [
+    "Root project starts at level selection",
+    "Startup offers both journeys with independent begin actions",
+    "Choosing journey two opens its native scene and isolated save",
+    "Level two retains the native faun and full MBean instrument",
+    "Begin chapter two preserves the other journey file",
+    "All three wounds initially show damaged soil without regrowth",
+    "Physical walking input moves the chapter-two faun",
+    "Tab opens the chapter-two instrument",
+    "Instrument E and J play held notes without talking or opening journal",
+    "Pause releases held instrument voices",
+    "Journal opens chapter-two map and current quest",
+    "Controller walks arrival outward continuously",
+    "Keeper explains the current healing objective",
+    "Controller walks source-approach outward continuously",
+    "Visiting source early names its specific missing tool",
+    "Controller walks source-approach return continuously",
+    "Controller walks hollow-approach outward continuously",
+    "Visiting hollow early names its specific missing tool",
+    "Controller walks hollow-approach return continuously",
+    "Controller walks ash-approach outward continuously",
+    "Visiting ash early names its specific missing tool",
+    "Actual controller cannot enter the sealed northern branch early",
+    "Controller walks ash-approach return continuously",
+    "Knowing the ending melody cannot complete an unhealed wood",
+    "Controller walks western-curl outward continuously",
+    "Long western branch physically reaches and collects the Spring Vessel",
+    "Controller walks western-curl return continuously",
+    "Controller walks source-approach outward continuously",
+    "Returning with the matching vessel heals the source and opens its routes",
+    "Opened shortcuts also hide their closed-root signs",
+    "Source healing replaces damaged soil with animated water and new growth",
+    "Source regrowth animation actually reaches its resting height",
+    "Controller walks source-cut outward continuously",
+    "Revisiting a tool does not duplicate it or consume it after use",
+    "Controller walks source-cut return continuously",
+    "Controller walks source-approach return continuously",
+    "Controller walks eastern-curl outward continuously",
+    "Eastern coil physically reaches and collects the Living Spore",
+    "Controller walks eastern-curl return continuously",
+    "Controller walks ash-approach outward continuously",
+    "Owning other tools cannot heal the ash scar without its Spindle",
+    "Controller walks ash-approach return continuously",
+    "Controller walks hollow-approach outward continuously",
+    "Living Spore heals its own wound and permanently opens the hollow cut",
+    "Spore healing clears the hollow soil and raises returning vegetation",
+    "Controller walks hollow-cut outward continuously",
+    "Controller walks hollow-cut return continuously",
+    "Controller walks hollow-approach return continuously",
+    "Controller walks ash-approach outward continuously",
+    "Controller walks northern-spiral outward continuously",
+    "Source restoration permits actual spiral travel to the Rootheart Spindle",
+    "Controller walks northern-spiral return continuously",
+    "Revisiting the ash scar with Spindle restores the third land",
+    "Spindle healing clears ash soil and raises new root growth",
+    "Controller walks ash-cut outward continuously",
+    "Controller walks ash-cut return continuously",
+    "On-disk save records all tools and healed shortcuts without claiming the ending",
+    "Continue restores the exact position, inventory and open land",
+    "Continue restores healed land at its finished animation height",
+    "Controller walks ash-approach return continuously",
+    "Controller walks hollow-approach outward continuously",
+    "Controller walks final-curl outward continuously",
+    "All healing objectives permit continuous travel to the final grove",
+    "Final grove offers the musical answer after land recovery",
+    "Wrong final phrase keeps the final song unfinished",
+    "Physical MBean keys finish the final song and chapter",
+    "Completion preserves all healing tools for further revisits",
+    "Completed chapter reloads with completion and every shortcut",
+    "Malformed save rejects unknown IDs, impossible Spindle and false completion",
+    "Continuous quest walking keeps the visible faun aligned",
+    "Level-two pause return reaches the real level selection scene",
+    "Startup offers Continue for a saved second journey",
+    "Startup Continue actually loads completed chapter-two progress",
+    "Chapter-two actions leave first-journey save byte-for-byte unchanged",
+    "Startup also offers Continue for the first valley",
+    "Valley selection loads its original scene and own saved discoveries",
+    "Selecting the valley does not change second-journey progress",
+    "The original valley can also return to the real level selection",
+    "Beginning over first asks confirmation without writing either journey",
+    "Confirmed new valley resets only the selected journey",
+    "Test never changes the real player save user://journey.json",
+    "Test never changes the real player save user://secondwood.json"
+  ],
+  "controller_steps": 14440,
+  "engine": "4.7.2-stable (official)",
+  "failures": [],
+  "player_relocations": 0,
+  "routes": [
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 28.2879465669394,
+      "route": "arrival"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 21.2132033631206,
+      "route": "source-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 21.2132033854723,
+      "route": "source-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 27.0400011837482,
+      "route": "hollow-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 27.0266736000776,
+      "route": "hollow-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 46.1908908784389,
+      "route": "ash-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 46.2088150531054,
+      "route": "ash-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 220.786727897823,
+      "route": "western-curl"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 220.80802077055,
+      "route": "western-curl"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 21.2051796093583,
+      "route": "source-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 35.0097330361605,
+      "route": "source-cut"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 34.9799420833588,
+      "route": "source-cut"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 21.2397917881608,
+      "route": "source-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 225.63643296808,
+      "route": "eastern-curl"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 225.635181419551,
+      "route": "eastern-curl"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 46.2000003308058,
+      "route": "ash-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 46.2011231929064,
+      "route": "ash-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 27.0399987995625,
+      "route": "hollow-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 28.132855065167,
+      "route": "hollow-cut"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 28.1184216290712,
+      "route": "hollow-cut"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 27.040001526475,
+      "route": "hollow-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 46.1899293288589,
+      "route": "ash-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 232.187117539346,
+      "route": "northern-spiral"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 232.177843876183,
+      "route": "northern-spiral"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 34.4096650406718,
+      "route": "ash-cut"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 34.4098980054259,
+      "route": "ash-cut"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "return",
+      "distance": 46.208815202117,
+      "route": "ash-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 27.0400013625622,
+      "route": "hollow-approach"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 169.784583576024,
+      "route": "final-curl"
+    }
+  ],
+  "scope": "The quest journey starts through the real selection button, then walks authored paths continuously using the real chapter-two controller, including three newly opened shortcuts and return visits. Healing and the final song use physical keyboard events. Save/Continue resets the scene from its own on-disk record. Separate scene reconstruction tests Continue for both chapters and a confirmed first-valley reset while retaining chapter two. No spatial relocation or direct quest mutation is used for gameplay progress. Fixed simulated steps are not a frame-rate or human wayfinding measurement.",
+  "simulated_seconds": 722.0,
+  "status": "passed",
+  "walked_distance": 2304.84750957787
+}

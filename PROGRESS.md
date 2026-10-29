@@ -1,5 +1,19 @@
 # Project NVS progress
 
+## Level select and second woodland 2026-10-28
+
+- [x] Added startup level cards for The Quiet Bloom and The Returning Wood, with Begin and Continue per journey. Replacing a saved journey requires a second click for that selected level; both pause menus can return to level select.
+- [x] Kept the original valley source, discoveries and `user://journey.json` intact. The second level owns its layout, quest state and `user://secondwood.json`, reusing the procedural faun, MBean1 keyboard and pipe audio, and woodland cast.
+- [x] Built a second bordered route network inside 180 by 180 unit bounds. Eight authored paths and three permanent shortcuts total 1,068.86 units of centerline. Western and eastern curls branch from the Turning Glade; a restored source opens the northern spiral.
+- [x] Added the Spring Vessel, Living Spore and Rootheart Spindle. The matching return objectives heal the Dry Source, Sealed Hollow and Ash Scar. Tools are collected by approach and applied with E; they remain reusable and cannot be consumed on a wrong interaction.
+- [x] Healing the three places opens three crosslinks, with the northern branch gated by source recovery. Once all places recover, the final curl opens to the Joined Grove; Q E U I U E Q completes the journey in any octave.
+- [x] Added a journal route overview, inventory descriptions, places to revisit, a dryad keeper, returning small animals, visible water or growth and healing particles. Locked paths and opened paths have separate map presentation.
+- [x] Appended H008 and the second-level implementation record to the existing design document as version 0.4, retaining the earlier contribution history and map evidence.
+- [x] Native progression passes 82 checks. The real controller walks 2,304.85 units in 14,440 fixed steps, from startup selection through all tools, healing, return visits and the physical-key finale, with no spatial relocation or direct quest mutation. Actual saves, Continue, level selection and save isolation are exercised.
+- [x] Native route verification passes 71 checks across 2,233 centerline samples and full-floor gate reachability at three progression states. Reachable grid cells increase from 3,292 to 4,676 after the source heals, then to 5,846 after all healings. The controller walks all eleven route sections out and back over 2,137.25 units in 13,382 steps, using one starting relocation per route.
+
+These tests establish physical progression, gate behavior and persistence. First-time navigation and target-hardware performance remain unmeasured. All five original Godot suites pass again. Eight native screenshots of the level selector, map, routes, healing and finale were inspected using software graphics. A gate sign now disappears along with the roots it labels. No new mythology or wider Artemis storyline is adopted by these route and quest choices.
+
 ## Far woodland map expansion 2026-10-28
 
 - [x] Recovered the complete editable woodland source from `ProjectNVS_Woodland_Source_74fb1e5.zip`, retaining the full MBean1 keyboard, squirrel, Raincall, nursery, fox, restoration dances and giant-deer Artemis.

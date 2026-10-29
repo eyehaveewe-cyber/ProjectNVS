@@ -13,12 +13,31 @@ This repository now includes the native **Godot 4.7.2** project at its root.
 1. Download a fresh repository ZIP and extract it completely.
 2. In Godot Project Manager, choose **Import** and select the root `project.godot`.
 3. Open the project and press **F5** to play.
+4. Choose **The Quiet Bloom** or **The Returning Wood** from the level selector. Each has its own Begin and Continue actions.
 
-The Godot edition runs the 3D game, animated faun, nine restoration sites, panpipes, camp, journal, map, saves, and final heart song directly. No Node.js, local web server, browser, or extension is required. Native saves are stored in `user://journey.json`, separately from browser saves.
+The Godot edition runs both 3D journeys, the animated faun, panpipes, journals, maps and native saves directly. No Node.js, local web server, browser, or extension is required. The first journey saves to `user://journey.json`; the second saves to `user://secondwood.json`. Browser saves remain separate.
 
 ![The native Godot game](docs/godot-gameplay.jpg)
 
 A Windows Desktop export preset is included. Export templates are needed only when exporting a standalone executable, not for opening and playing the project in Godot.
+
+## Level select and The Returning Wood 28 October 2026
+
+The game now starts with two level cards. **The Quiet Bloom** keeps the existing valley, nine sanctuaries and open woodland. **The Returning Wood** is a separate journey built around long curling branches, healing tools and returns to earlier wounds. Both levels are available from the start. Begin replaces only the selected journey after a second click when a save already exists; Continue resumes that journey. Press Escape in either level and choose **Level select** to switch.
+
+The Returning Wood has eight authored paths and three unlockable shortcuts, totaling 1,068.86 units of route centerline. Low banks define the walks inside 180 by 180 unit bounds. From the Turning Glade, the western and eastern curls lead to tools that restore places you passed earlier.
+
+| Tool | Where to find it | Where to return | What healing opens |
+| --- | --- | --- | --- |
+| Spring Vessel | Western curl | The Dry Source | Western shortcut and the northern spiral |
+| Living Spore | Eastern curl | The Sealed Hollow | Eastern shortcut |
+| Rootheart Spindle | Northern spiral, after healing the source | The Ash Scar | Northern shortcut |
+
+Approach a tool to collect it. Lower the pipes and press **E** near its matching wound to heal the land. Tools stay in your pack. Water, new growth and returning woodland residents show what changed. After all three places recover, the route to the Joined Grove opens. Raise the pipes with **Tab** and play **Q E U I U E Q**, in any octave, to complete this journey.
+
+Press **J** with the pipes lowered for the route map, tool descriptions and places to revisit. Pale paths are open; dim paths remain closed by a wound. The second level reuses the native faun, full MBean1 keyboard, pipe audio and woodland cast, with its own quest inventory and route state. The [design addendum](docs/ProjectNVS_Woodland_Expansion.docx) records the human request and the implementation choices for this milestone.
+
+Second-level native verification passes 82 progression checks and 71 route checks. The progression journey walks from entry through the healing objectives and final song without relocating the faun. The route audit checks physical gate reachability across the full floor and walks every route outward and back. See [progression results](docs/secondwood-progression-verification.json) and [traversal results](docs/secondwood-traversal-verification.json) for the exact scope.
 
 ## Far woodland expansion 28 October 2026
 
@@ -58,7 +77,7 @@ The instrument uses MBean1's actual computer-keyboard layout, held polyphony, a 
 
 Tab is reserved for changing instrument mode. J and E are musical keys while the pipes are raised; lower them to use the journal or talk/rest shortcut. Note releases, lowering the pipes, pause, focus loss and mute clean up sustained voices.
 
-This is a first expansion. The rhythm note highway, Artemis' human form and the wider story conflict remain for later discussion. The [design addendum](docs/ProjectNVS_Woodland_Expansion.docx) preserves those ideas.
+That first expansion left the rhythm note highway, Artemis' human form and the wider story conflict for later discussion. The [design addendum](docs/ProjectNVS_Woodland_Expansion.docx) preserves those ideas.
 
 ## Browser prototype
 
@@ -99,7 +118,9 @@ Energy, comfort, and frustration change the faun's mood. They never prevent move
 
 ## Your journey is saved here
 
-The Godot game saves to its native user folder every five seconds, after restoration, and when paused or closed. The browser prototype saves separately in the current browser. **Continue** restores your position, sanctuary progress, needs, ending state, gathered seeds, squirrel progress, rain song, wildlife cleansing, nursery growth and Artemis encounter. Version-one native saves receive safe defaults for the new discoveries. Browser site data and native user-folder saves are independent.
+The Quiet Bloom saves to `user://journey.json` every five seconds, after restoration, and when paused or closed. **Continue** restores position, sanctuary progress, needs, ending state, gathered seeds, squirrel progress, rain song, wildlife cleansing, nursery growth and the Artemis encounter. Version-one native saves receive safe defaults for the newer discoveries.
+
+The Returning Wood keeps a separate `user://secondwood.json` with position, owned tools, healed places, elapsed time and completion. Open shortcuts follow the saved healing state. Starting or continuing either level leaves the other level's file alone. The browser prototype saves separately in the current browser.
 
 ## Watch a place recover
 
@@ -109,7 +130,7 @@ The Godot game saves to its native user folder every five seconds, after restora
 
 ## Scope of this version
 
-This is a single-player exploration game with an authored central valley and larger woodland, nine restoration sites, optional musical discoveries, a playable procedural faun, live synthesized music, and an ending. It has no combat, building mode, multiplayer, or full music editor. The expanded native instrument supports freely played chords, chromatic notes and several octaves. Sanctuary matching accepts the melody across octaves at the player's own pace.
+This is a single-player exploration game with two selectable journeys. The first has an authored central valley and larger woodland, nine restoration sites, optional musical discoveries and a heart-tree ending. The second has branching routes, three reusable healing tools, three returning objectives, permanent shortcuts and a final grove song. Both share the procedural faun and live synthesized instrument. The game has no combat, building mode, multiplayer, or full music editor. The native instrument supports freely played chords, chromatic notes and several octaves; melody matching accepts notes across octaves at the player's own pace.
 
 All models and terrain are generated in code. The music uses an authored synthesizer adapted from MBean1's reed voice. It contains no borrowed music recordings or downloaded instrument samples.
 
@@ -142,6 +163,8 @@ godot --headless --path . --script tests/music_keyboard.gd
 godot --headless --path . --script tests/woodland_routes.gd
 godot --headless --path . --script tests/woodland_traversal.gd
 godot --headless --path . --script tests/woodland_expansion.gd
+godot --headless --path . --script tests/secondwood_progression.gd
+godot --headless --path . --script tests/secondwood_traversal.gd
 ```
 
 These exercise the native scene, movement input, all nine sites, the ending, actual save/Continue, malformed save handling, rest, held music, optional discoveries, rain, creature cleansing, Artemis and native PCM audio data. The route audit samples 3,513 collision points; the controller traverses all eleven trails forward and backward, plus off-trail and world-edge probes. The integration journey relocates the faun between discoveries and lets the squirrel move through its actual update loop; it also saves and resumes in the new country. This is not a first-time navigation or target-hardware performance test. See [Godot verification](docs/godot-verification.json) and [native port notes](docs/GODOT_PORT.md).
