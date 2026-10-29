@@ -8,6 +8,10 @@ const Faun = preload("res://scripts/faun.gd")
 const Music = preload("res://scripts/music.gd")
 const Keyboard = preload("res://scripts/keyboard.gd")
 const Cast = preload("res://scripts/woodland_cast.gd")
+const FrogBand = preload("res://scripts/frog_band.gd")
+const FrogBanjo = preload("res://scripts/frog_banjo.gd")
+const Ambience = preload("res://scripts/secondwood_ambience.gd")
+const FROG_BAND_POSITION := Vector2(-118,-40)
 const FINAL_PHRASE: Array[int] = State.FINAL_PHRASE
 var state: RefCounted
 var map: Node3D
@@ -34,7 +38,13 @@ var items: Dictionary = {}
 var site_markers: Dictionary = {}
 var particles: Array[Dictionary] = []
 var cast: Node3D
+var frog_band: Node3D
+var frog_song: Node
+var ambience: Node3D
 var artemis: Node3D
+var moon_aura: Node3D
+var moon_motes: Array[MeshInstance3D] = []
+var artemis_bow: float = 0.0
 var target_markers: Dictionary = {}
 var anchor_markers: Dictionary = {}
 var canopy_residents: Array[Node3D] = []
@@ -91,6 +101,8 @@ class RouteOverview extends Control:
 		draw_string(ThemeDB.fallback_font,point(Layout.CROWN)+Vector2(8,0),"Crown Clearing",HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#ecdfb0"))
 		for landmark: Dictionary in [{"p":Layout.LENS,"name":"Mirror Wetland","offset":Vector2(-5,-14)},{"p":Layout.SPOOL,"name":"Cinder Loom","offset":Vector2(-55,-14)},{"p":Layout.HUB,"name":"Artemis","offset":Vector2(-18,17)}]:
 			draw_string(ThemeDB.fallback_font,point(landmark.p)+Vector2(landmark.offset),str(landmark.name),HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#ecdfb0"))
+		draw_circle(point(FROG_BAND_POSITION),3,Color("#efdb9d"))
+		draw_string(ThemeDB.fallback_font,point(FROG_BAND_POSITION)+Vector2(8,2),"Frog band",HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#ecdfb0"))
 		draw_circle(point(Layout.HUB),3,Color("#e8d8b1"))
 		draw_circle(point(Layout.FINAL),6,Color("#d5bde3"),false,2,true)
 		draw_string(ThemeDB.fallback_font,point(Layout.FINAL)+Vector2(8,4),"Final grove",HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#e2cfe9"))
@@ -129,6 +141,15 @@ func _ready() -> void:
 	environment.environment = settings
 	add_child(environment)
 	_make_discoveries()
+	ambience = Ambience.new()
+	add_child(ambience)
+	ambience.setup(self,cast)
+	frog_band = FrogBand.new()
+	frog_band.position = _ground(FROG_BAND_POSITION)
+	add_child(frog_band)
+	frog_band.build()
+	frog_song = FrogBanjo.new()
+	add_child(frog_song)
 	_build_ui()
 	_sync_position()
 	_update_camera(1.0)
@@ -136,6 +157,8 @@ func _ready() -> void:
 
 func start_level(resume: bool = false) -> void:
 	music.stop()
+	frog_song.stop_song()
+	frog_song.set_muted(music.muted)
 	lens_toggle = false
 	held_keys.clear()
 	modifiers.clear()
@@ -224,6 +247,7 @@ func _make_discoveries() -> void:
 	artemis = cast.create_artemis()
 	artemis.position = _ground(Layout.ARTEMIS)
 	add_child(artemis)
+	_make_moon_aura()
 	for id: String in Layout.TARGETS:
 		var marker := _gem(Color("#c7b2e5"),0.25)
 		marker.position = _ground(Layout.TARGETS[id].position,0.5)
@@ -276,6 +300,82 @@ func _make_discoveries() -> void:
 	lantern.position = _ground(Layout.HUB,1.5)
 	add_child(lantern)
 
+func _moon_material(color: Color) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.albedo_color = color
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	return mat
+
+func _make_moon_aura() -> void:
+	# Transparent layered geometry provides a moonlit glow even in renderers
+	# without post-processing bloom; the particles use a bounded fixed pool.
+	moon_aura = Node3D.new()
+	moon_aura.name = "ArtemisMoonlight"
+	moon_aura.position = _ground(Layout.ARTEMIS,0.08)
+	add_child(moon_aura)
+	for i in 3:
+		var ring := MeshInstance3D.new()
+		var shape := TorusMesh.new()
+		shape.inner_radius = 2.35+float(i)*0.43
+		shape.outer_radius = shape.inner_radius+0.055+float(i)*0.01
+		shape.rings = 48
+		shape.ring_segments = 8
+		ring.mesh = shape
+		ring.material_override = _moon_material(Color(0.68,0.84,1.0,0.22-float(i)*0.045))
+		ring.position.y = float(i)*0.015
+		moon_aura.add_child(ring)
+	var pool := MeshInstance3D.new()
+	var pool_mesh := SphereMesh.new()
+	pool_mesh.radius = 1.0
+	pool_mesh.height = 2.0
+	pool_mesh.radial_segments = 24
+	pool_mesh.rings = 8
+	pool.mesh = pool_mesh
+	pool.scale = Vector3(3.05,0.035,3.05)
+	pool.material_override = _moon_material(Color(0.48,0.65,0.91,0.08))
+	moon_aura.add_child(pool)
+	var glow_mesh := SphereMesh.new()
+	glow_mesh.radius = 0.07
+	glow_mesh.height = 0.14
+	glow_mesh.radial_segments = 6
+	glow_mesh.rings = 4
+	var glow_material := _moon_material(Color(0.75,0.88,1.0,0.72))
+	for i in 22:
+		var mote := MeshInstance3D.new()
+		mote.name = "MoonMote%02d" % i
+		mote.mesh = glow_mesh
+		mote.material_override = glow_material
+		moon_aura.add_child(mote)
+		moon_motes.append(mote)
+	_update_moon_aura(0.0)
+
+func _update_moon_aura(time: float) -> void:
+	if not is_instance_valid(moon_aura): return
+	moon_aura.visible = state.position2().distance_to(Layout.ARTEMIS)<48.0
+	if not moon_aura.visible: return
+	for i in moon_motes.size():
+		var phase: float = float(i)*TAU/float(moon_motes.size())
+		var radius: float = 2.0+0.85*sin(phase*3.0+time*0.21)
+		var angle: float = phase+time*(0.10+float(i%3)*0.025)
+		var height: float = 0.4+fposmod(float(i)*0.37+time*0.36,4.2)
+		var mote: MeshInstance3D = moon_motes[i]
+		mote.position = Vector3(cos(angle)*radius,height,sin(angle)*radius)
+		mote.scale = Vector3.ONE*(0.55+0.45*(0.5+0.5*sin(time*1.8+phase*4.0)))
+
+func _artemis_words(was_accepted: bool) -> String:
+	if state.artemis_finale_done: return "Artemis: Listen. The young roots can carry water again, and the wood has room for song."
+	if state.acorn_state=="planted": return "Artemis: The roots remember. Answer with Q E U I U E Q."
+	if state.acorn_state=="carried": return "Artemis: The acorn needs no hurry. Take it to Crown Clearing and plant it with the Rootheart Spindle."
+	if not was_accepted and not state.inventory.has("vessel"):
+		return "Artemis: The roots remember one another. Their paths have forgotten. Find the Spring Vessel on the western curl."
+	if state.healed.size()<3: return "Artemis: Each wound has its own need. "+state.objective()
+	if not state.crossings_complete.has("west-ridge-roots") or not state.crossings_complete.has("east-root-bridge"):
+		return "Artemis: The land is breathing, but the ridge paths are severed. "+state.objective()
+	return "Artemis: Come closer. The ridge is ready for something new."
+
 func _set_site_marker(id: String) -> void:
 	var marker: MeshInstance3D = site_markers[id].get_child(0)
 	marker.material_override = _material(Color("#a9db92") if state.healed.has(id) else Color("#dba482"))
@@ -322,6 +422,10 @@ func _physics_process(delta: float) -> void:
 	faun.animate(delta,walking,playing,false,clock)
 	cast._animate(keeper,clock,state.position2().distance_to(Layout.HUB)<5.5)
 	cast._animate(artemis,clock,state.acorn_state=="planted")
+	if artemis_bow>0.0:
+		artemis_bow = maxf(0.0,artemis_bow-delta)
+		var head: Node3D = artemis.get_node_or_null("Head")
+		if head!=null: head.rotation.x += sin((1.6-artemis_bow)/1.6*PI)*0.25
 	artemis.rotation.y = atan2(body.position.x-artemis.position.x,body.position.z-artemis.position.z)
 	for animal in canopy_residents:
 		if animal.visible: cast._animate(animal,clock,true)
@@ -337,13 +441,17 @@ func _physics_process(delta: float) -> void:
 			save_game()
 	music.restoration = float(state.healed.size())/3.0
 	music.region = "THE BRANCHING WOOD"
-	if not playing: music.tick(delta)
+	if frog_song.is_playing() and state.position2().distance_to(FROG_BAND_POSITION)>18.0:
+		frog_song.stop_song()
+	frog_band.animate(delta,frog_song.is_playing())
+	if not playing and not frog_song.is_playing(): music.tick(delta)
 	update_hud()
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(camera): return
 	_update_camera(delta)
 	if paused: return
+	_update_moon_aura(clock)
 	for id: String in items:
 		var item: Node3D = items[id]
 		item.rotation.y = clock*0.8
@@ -413,6 +521,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_pitch = clampf(camera_pitch-event.relative.y*0.003,-1.08,-0.3)
 
 func set_pipes(value: bool) -> void:
+	if value: frog_song.stop_song()
 	music.release_all()
 	held_keys.clear()
 	modifiers.clear()
@@ -435,7 +544,7 @@ func play_midi(pitch: int, held: bool = false) -> void:
 	_burst(body.position,2)
 	if state.play_pitch(pitch):
 		map.sync(state.flags())
-		_burst(_ground(Layout.FINAL),65)
+		_burst(_ground(Layout.ARTEMIS if state.artemis_finale_done else Layout.FINAL),65)
 		save_game()
 		_toast("Artemis bows beneath the young canopy." if state.artemis_finale_done else "Water, spores and roots answer together. The branching wood is alive again.")
 		_sync_relics()
@@ -446,10 +555,26 @@ func play_midi(pitch: int, held: bool = false) -> void:
 func interact() -> void:
 	if not started or paused or playing: return
 	var position2: Vector2 = state.position2()
+	if position2.distance_to(FROG_BAND_POSITION)<=4.0:
+		if frog_song.is_playing():
+			frog_song.stop_song()
+			_toast("The frogs lower their banjos. Press E to hear them again.")
+		elif music.muted:
+			_toast("The frogs are ready to play. Turn sound on to hear their banjos.")
+		else:
+			music.stop()
+			frog_song.play_song()
+			_toast("The wetland frogs strike up a banjo tune. Press E to stop, or walk on when you are ready.")
+		update_hud()
+		return
 	# Relic and Artemis interactions have explicit spatial boundaries.
 	if position2.distance_to(Layout.ARTEMIS)<=4.0:
-		_apply_quest_event(state.accept_artemis_quest())
-		if state.acorn_state=="planted":
+		var was_accepted: bool = state.artemis_accepted
+		var event: Dictionary = state.accept_artemis_quest()
+		if event.type=="artemis": event.text = _artemis_words(was_accepted)
+		artemis_bow = 1.6
+		_apply_quest_event(event)
+		if state.acorn_state=="planted" and not state.artemis_finale_done:
 			music.melody(FINAL_PHRASE,0.5)
 			_toast("Artemis: The roots remember. Answer with Q E U I U E Q.")
 		return
@@ -578,6 +703,7 @@ func _notification(what: int) -> void:
 	if what==NOTIFICATION_APPLICATION_FOCUS_OUT and started and not paused: show_pause()
 
 func _exit_tree() -> void:
+	if is_instance_valid(frog_song): frog_song.stop_song()
 	if started: save_game()
 
 func update_hud() -> void:
@@ -597,6 +723,7 @@ func update_hud() -> void:
 		if position2.distance_to(Layout.SITES[id].position)<4.0:
 			context_label.text = "E · Inspect healed land" if state.healed.has(id) else "E · Use "+str(Layout.ITEMS[str(Layout.SITES[id].item)].name)+" here"
 	if position2.distance_to(Layout.HUB)<5.5: context_label.text = "E · Ask the keeper about the wounded land"
+	if position2.distance_to(FROG_BAND_POSITION)<=4.0: context_label.text = "E · Stop the frog band" if frog_song.is_playing() else "E · Listen to the frog band"
 	if position2.distance_to(Layout.ARTEMIS)<=4.0: context_label.text = "E · Speak with Artemis"
 	if position2.distance_to(Layout.CROWN)<=3.5: context_label.text = "E · Visit the young canopy" if state.acorn_state=="planted" else "E · Plant Artemis's acorn with the Spindle"
 	var target: String = nearest_target()
@@ -741,6 +868,7 @@ func _layout_ui() -> void:
 
 func _open_modal() -> void:
 	paused = true
+	frog_song.stop_song()
 	state.reset_lens()
 	_update_lens_beam()
 	lens_toggle = false
@@ -812,6 +940,8 @@ func toggle_sound() -> void:
 	_update_lens_beam()
 	lens_toggle = false
 	music.muted = not music.muted
+	frog_song.set_muted(music.muted)
+	if music.muted: frog_song.stop_song()
 	music.stop()
 	held_keys.clear()
 	sound_button.text = "Sound off" if music.muted else "Sound on"

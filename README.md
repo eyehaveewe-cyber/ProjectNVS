@@ -37,6 +37,10 @@ Approach a tool to collect it. Lower the pipes and press **E** near its matching
 
 Press **J** with the pipes lowered for the route map, tool descriptions and places to revisit. Pale paths are open; dim paths remain closed by a wound. The second level reuses the native faun, full MBean1 keyboard, pipe audio and woodland cast, with its own quest inventory and route state. The [design addendum](docs/ProjectNVS_Woodland_Expansion.docx) records the human request and the implementation choices for this milestone.
 
+At the Turning Glade, moonlight and drifting motes surround Artemis, who responds to the current stage of her quest. Squirrels appear along several walks, and pollen, glints, fireflies, embers and petals distinguish different regions. At the wetland bend, three frogs sit together with banjos. Approach them and press **E** to start or stop their tune. It also stops when you walk away, pause, mute sound or raise the pipes.
+
+Their original 33-second tune, **Frog Lantern Rag**, is included as [MP3](assets/frog-lantern-rag.mp3) and as an editable [MBean1 score](assets/frog-lantern-rag.mbean.json). MBean1 has no banjo voice, so its score uses guitar editing proxies; the game's banjo-like sound is rendered separately by an original plucked-string model. The composition was checked from its score and waveform and has not had a human listening review.
+
 Speak with the giant deer **Artemis** at the Turning Glade. Her quest asks you to heal the three wounds, reconnect the western and eastern ridge crossings, carry her acorn to **Crown Clearing**, then return along the new descent to play **Q E U I U E Q** beside her. Planting grows a young canopy and brings back small creatures. The grove song and Artemis's finale keep separate progress.
 
 | Relic or return | Interaction |
@@ -180,6 +184,9 @@ godot --headless --path . --script tests/woodland_expansion.gd
 godot --headless --path . --script tests/secondwood_progression.gd
 godot --headless --path . --script tests/secondwood_traversal.gd
 godot --headless --path . --script tests/secondwood_relics.gd
+godot --headless --path . --script tests/frog_banjo.gd
+godot --headless --path . --script tests/woodland_life.gd
+godot --headless --path . --script tests/secondwood_ambience_integration.gd
 godot --headless --path . --script tools/audit-secondwood.gd
 python tools/audit-secondwood-shortcuts.py
 ```

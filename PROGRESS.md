@@ -1,5 +1,13 @@
 # Project NVS progress
 
+## Woodland life and frog band, 2026-10-29
+
+- Artemis now speaks to the faun about the current stage of her quest, bows at an audience, and stands in layered moonlight with drifting motes. The pre-existing quest and saves remain unchanged.
+- Three animated frogs sit together at the western wetland bend. Press E to start or stop their banjo tune; it stops on departure, pause, mute, or when the pipes are raised. The journal marks their location.
+- Five squirrels hop and move their tails along the routes. Five distance-culled particle fields add glade pollen, spring glints, wetland fireflies, cinder embers and ridge petals. Ambient motion pauses with the game.
+- Frog Lantern Rag is an original 16-bar, 116 BPM composition, authored and validated in MBean1's event model. MBean1 has no banjo patch, so the editable score uses guitar proxies. A deterministic plucked-string renderer, separate from MBean1's audio engine, creates the banjo-like WAV used by the game and a standalone MP3. The score, generator and renderer are included. The audio was checked by score, waveform and native playback tests, but has not been human-listened.
+- Native tests cover the new interactions, audio playback and cleanup, quest-stage dialogue, ambient culling and pause behavior. The existing continuous 104-check Artemis quest still passes with zero relocations. Three Godot screenshots were visually inspected using arranged positions. First-time wayfinding, human listening and target-hardware frame rate remain unmeasured.
+
 ## Artemis expansion implemented 2026-10-28
 
 H009's second-level expansion is now playable in the native Godot source. The old core, original tool/site IDs, first valley and independent saves remain intact. The earlier revision 0.5 handoff is retained as design history; `docs/ARTEMIS_IMPLEMENTATION.md` records the delivered behavior and evidence.
