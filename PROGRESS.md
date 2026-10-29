@@ -1,5 +1,9 @@
 # Project NVS progress
 
+## Artemis expansion handoff planned 2026-10-28
+
+H009 requests roughly three times the second level, more shortcuts and relic interactions, and an Artemis questline for Terra to implement. The implementation handoff is in `docs/TERRA_EXPANSION_PLAN.txt` and design revision 0.5. Proposed targets are 312 by 312 bounds, about 3,200 units of paths and nine total shortcuts. Two reusable relics, persistent root repairs and an acorn planting lead to a changed return to Artemis. These are planning targets; the enlarged map and quest have not been implemented or tested.
+
 ## Level select and second woodland 2026-10-28
 
 - [x] Added startup level cards for The Quiet Bloom and The Returning Wood, with Begin and Continue per journey. Replacing a saved journey requires a second click for that selected level; both pause menus can return to level select.

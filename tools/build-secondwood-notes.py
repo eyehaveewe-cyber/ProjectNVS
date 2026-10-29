@@ -32,6 +32,8 @@ def proof(name):
 progression = proof("secondwood-progression-verification.json")
 traversal = proof("secondwood-traversal-verification.json")
 doc = Document(OUTPUT)
+if float(doc.core_properties.version or "0") > 0.4:
+    raise SystemExit("A later design revision exists. Preserve its planning and human edits.")
 for paragraph in list(doc.paragraphs):
     if paragraph.text == APPENDIX:
         element = paragraph._p
