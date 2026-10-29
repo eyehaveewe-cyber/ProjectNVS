@@ -4,6 +4,7 @@ extends Node3D
 const State = preload("res://scripts/secondwood_state.gd")
 const Layout = preload("res://scripts/secondwood_layout.gd")
 const World = preload("res://scripts/secondwood_map.gd")
+const Dales = preload("res://scripts/secondwood_dales.gd")
 const Faun = preload("res://scripts/faun.gd")
 const Music = preload("res://scripts/music.gd")
 const Keyboard = preload("res://scripts/keyboard.gd")
@@ -119,6 +120,9 @@ func _ready() -> void:
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	map.build(material)
+	var dales: Node3D = Dales.new()
+	add_child(dales)
+	dales.build()
 	body = Node3D.new()
 	add_child(body)
 	faun = Faun.new()

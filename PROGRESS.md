@@ -1,5 +1,12 @@
 # Project NVS progress
 
+## Returning Wood scenery, 2026-10-29
+
+- Added deterministic, batched clusters of 11,563 yellow, orange and purple flowers, 1,335 mushrooms, 669 moss patches and 368 roadside trees, including the spaces between winding lanes. Existing woodland trees remain. The small plants are decorative.
+- Added 177 low grassy mounds and 16 pools of warm sunlight. The hills are visual geometry beyond the existing walking corridors; they do not change character height or collision.
+- Verified every unlocked trail centerline, gate state and generated tree/hill clearance in 15 scenery checks. The full 104-check Artemis progression, route traversal and woodland-life interaction suites pass after the density pass. Five native screenshots were inspected from arranged positions.
+- This is a heavier scene: the base and chunked detail meshes total 387,620 triangles, up from 161,160. Detail is split into nearby visibility chunks; a single local headless scene construction took about 2.0 seconds versus a prior 0.73-second measurement. In a single 960×600 software-rendered comparison, mean frame time rose from 26.97 ms to 32.83 ms after chunking. Neither timing predicts target-hardware performance.
+
 ## Woodland life and frog band, 2026-10-29
 
 - Artemis now speaks to the faun about the current stage of her quest, bows at an audience, and stands in layered moonlight with drifting motes. The pre-existing quest and saves remain unchanged.

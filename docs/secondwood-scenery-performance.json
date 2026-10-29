@@ -1,0 +1,27 @@
+{
+  "engine": "Godot 4.7.2 stable",
+  "resolution": "960x600",
+  "renderer": "GL Compatibility using Mesa llvmpipe software rendering",
+  "method": "Same western-path camera, 10 warmup frames, 60 measured process-frame intervals per version; no automated player movement. Single run each; V-Sync unsupported in this environment. Frame time includes all work, not separate CPU and GPU timings.",
+  "baseline_commit": "1bdfab8be27a6ac1ed2164f2a681a49f8b40a153",
+  "baseline": {
+    "frames": 60,
+    "mean_ms": 26.9683166666667,
+    "median_ms": 25.981,
+    "p95_ms": 37.696,
+    "renderer": "GL compatibility / llvmpipe software",
+    "resolution": "960x600",
+    "scope": "60 frames after 10 warmup at western path; not target hardware or GPU/CPU separation"
+  },
+  "optimized_decorated": {
+    "frames": 60,
+    "mean_ms": 32.8297333333333,
+    "median_ms": 31.06,
+    "p95_ms": 51.812,
+    "renderer": "GL compatibility / llvmpipe software",
+    "resolution": "960x600",
+    "scope": "60 frames after 10 warmup at western path; not target hardware or GPU/CPU separation"
+  },
+  "mean_frame_time_increase_percent": 21.7,
+  "limitations": "Software renderer and one viewpoint; this does not establish performance on user hardware, additional camera angles, or a frame-rate target."
+}

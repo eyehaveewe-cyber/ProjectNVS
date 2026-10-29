@@ -15,6 +15,10 @@ var vertices := PackedVector3Array()
 var colors := PackedColorArray()
 var material: Material
 var rng := RandomNumberGenerator.new()
+# Metrics are for placement checks, not collision; scenery remains visual.
+var scenery_counts: Dictionary = {"flowers":0,"mushrooms":0,"moss":0,"trees":0}
+var roadside_tree_positions: Array[Vector2] = []
+var detail_chunks: Node3D
 
 static func height_at(x: float, z: float) -> float:
 	return 0.20+sin(x*0.09)*0.12+cos(z*0.11)*0.10
@@ -34,6 +38,16 @@ func build(shared_material: Material = null) -> void:
 		_disc(clearing.position,float(clearing.radius),Color("#819b70"))
 		_sign(clearing.position+Vector2(3.3,2.0),str(clearing.name))
 	_banks()
+	# Keep the original ground and route batch intact. Chunk only the newly
+	# added details so the renderer can cull distant flowers and roadside trees.
+	var base_vertices: PackedVector3Array = vertices
+	var base_colors: PackedColorArray = colors
+	vertices = PackedVector3Array()
+	colors = PackedColorArray()
+	_roadside_vegetation()
+	_chunk_roadside_geometry()
+	vertices = base_vertices
+	colors = base_colors
 	_forest()
 	_landmarks()
 	geometry = _flush("SecondWoodBatchedGeometry",self)
@@ -223,10 +237,144 @@ func _banks() -> void:
 			if open_approach: continue
 			_column(_point(p.x,p.y),0.65,0.7,Color("#707c69"),0.8)
 
+func _nearest_route(point: Vector2) -> float:
+	var distance: float = INF
+	for route: Dictionary in Layout.all_routes():
+		distance = minf(distance,Layout.route_distance(point,route.points))
+	return distance
+
+func _away_from_clearings(point: Vector2, margin: float) -> bool:
+	for clearing: Dictionary in Layout.CLEARINGS:
+		if point.distance_to(clearing.position)<float(clearing.radius)+margin: return false
+	return true
+
+func _tree_camera_clear(point: Vector2) -> bool:
+	# Camera looks towards the north from the south at its initial angle.
+	# Preserve important clearing sightlines as in the older forest placement.
+	for clearing: Dictionary in Layout.CLEARINGS:
+		var local: Vector2 = point-Vector2(clearing.position)
+		if local.length()<float(clearing.radius)+4.0: return false
+		if local.y>0.0 and local.y<14.0 and absf(local.x-local.y*0.18)<6.0: return false
+	return true
+
+func _flower(point: Vector2, color: Color, stem_height: float) -> void:
+	var base: Vector3 = _point(point.x,point.y,0.03)
+	var top: Vector3 = base+Vector3.UP*stem_height
+	# Flat green stem and four broad low-poly petals. Small irregular clumps
+	# stay legible from the walking camera without adding separate draw calls.
+	_quad(base+Vector3(-0.018,0,0),base+Vector3(0.018,0,0),top+Vector3(0.018,0,0),top+Vector3(-0.018,0,0),Color("#638d4f"))
+	for side in 4:
+		var angle: float = TAU*side/4.0
+		var toward := Vector3(cos(angle),0,sin(angle))
+		var across := Vector3(-sin(angle),0,cos(angle))
+		var center: Vector3 = top+toward*0.16
+		_tri(top,center+across*0.12,center+toward*0.18,color)
+		_tri(top,center+toward*0.18,center-across*0.12,color)
+	var center: Vector3 = top+Vector3.UP*0.018
+	_quad(center+Vector3(-0.045,0,-0.045),center+Vector3(0.045,0,-0.045),center+Vector3(0.045,0,0.045),center+Vector3(-0.045,0,0.045),Color("#f3df97"))
+	scenery_counts.flowers += 1
+
+func _mushroom(point: Vector2, size: float, tint: Color) -> void:
+	_column(_point(point.x,point.y),0.075*size,0.33*size,Color("#e9dfbd"),0.86)
+	_crown(_point(point.x,point.y,0.35*size),Vector3(0.24,0.12,0.24)*size,tint)
+	# A single cream fleck makes the cap recognizable from above.
+	_crown(_point(point.x+0.06*size,point.y,0.46*size),Vector3(0.04,0.035,0.04)*size,Color("#f6edcf"))
+	scenery_counts.mushrooms += 1
+
+func _roadside_vegetation() -> void:
+	# Place the small details from authored walk segments, so new country is
+	# just as richly planted as the original core. All placements are stable.
+	# The two banks remain legible, and nothing alters the walkability predicate.
+	var local_rng := RandomNumberGenerator.new()
+	local_rng.seed = 870429
+	var flower_colors: Array[Color] = [Color("#f1d763"),Color("#ed9c54"),Color("#b495d6")]
+	var placed_trees: Array[Vector2] = []
+	for route: Dictionary in Layout.PATHS:
+		for segment in range(1,route.points.size()):
+			var a: Vector2 = route.points[segment-1]
+			var b: Vector2 = route.points[segment]
+			var side := Vector2(-(b-a).y,(b-a).x).normalized()
+			var steps: int = maxi(1,ceili(a.distance_to(b)/4.0))
+			for index in steps:
+				var middle: Vector2 = a.lerp(b,(float(index)+0.5)/steps)
+				for sign_side in [-1,1]:
+					var normal: Vector2 = side*float(sign_side)
+					var edge: Vector2 = middle+normal*3.35
+					if _bank_allowed(edge) and local_rng.randf()<0.58:
+						_crown(_point(edge.x,edge.y,0.76),Vector3(0.67,0.15,0.56),Color("#80a85c"))
+						scenery_counts.moss += 1
+					var cluster: Vector2 = middle+normal*local_rng.randf_range(3.9,5.0)
+					if not _away_from_clearings(cluster,1.5) or _nearest_route(cluster)<2.95: continue
+					var tint: Color = flower_colors[local_rng.randi_range(0,flower_colors.size()-1)]
+					for flower in 7:
+						var spot: Vector2 = cluster+Vector2.from_angle(local_rng.randf_range(0,TAU))*local_rng.randf_range(0.0,1.1)
+						if _nearest_route(spot)<2.85 or not _away_from_clearings(spot,1.0): continue
+						_flower(spot,tint.lightened(local_rng.randf_range(0.0,0.12)),local_rng.randf_range(0.46,0.78))
+					if local_rng.randf()<0.48:
+						for shroom in 2:
+							var spot: Vector2 = cluster+normal*(0.3+float(shroom)*0.42)+side*0.2*float(shroom)
+							if _nearest_route(spot)<3.0 or not _away_from_clearings(spot,1.0): continue
+							_mushroom(spot,local_rng.randf_range(0.75,1.2),Color("#c36c59") if local_rng.randf()<0.5 else Color("#d4ad77"))
+					if local_rng.randf()>0.55: continue
+					var tree: Vector2 = cluster+normal*local_rng.randf_range(1.8,3.4)
+					if maxf(absf(tree.x),absf(tree.y))>Layout.BOUNDS-2.0 or _nearest_route(tree)<4.8 or not _tree_camera_clear(tree): continue
+					var close: bool = false
+					for existing: Vector2 in placed_trees:
+						if tree.distance_to(existing)<5.2: close = true; break
+					if close: continue
+					placed_trees.append(tree)
+					roadside_tree_positions.append(tree)
+					var size: float = local_rng.randf_range(0.75,1.1)
+					_column(_point(tree.x,tree.y),0.22*size,3.1*size,Color("#826c4d"),0.65)
+					_crown(_point(tree.x,tree.y,3.4*size),Vector3(1.5,1.5,1.4)*size,Color("#7b9c60"))
+					_crown(_point(tree.x-0.55,tree.y,2.9*size),Vector3(1.1,0.9,1.0)*size,Color("#a2b873"))
+					scenery_counts.trees += 1
+	# Fill the ground between neighboring lanes, without putting plants on
+	# authored paths or on interaction clearings. Clumps have an uneven edge,
+	# so the intervening woodland reads as a place instead of a flower grid.
+	for x in range(-150,151,6):
+		for z in range(-150,151,6):
+			if local_rng.randf()>0.62: continue
+			var center := Vector2(float(x)+local_rng.randf_range(-2.2,2.2),float(z)+local_rng.randf_range(-2.2,2.2))
+			var distance: float = _nearest_route(center)
+			if distance<5.6 or distance>17.0 or not _away_from_clearings(center,4.0): continue
+			var tint: Color = flower_colors[local_rng.randi_range(0,flower_colors.size()-1)]
+			for flower in 5:
+				var spot: Vector2 = center+Vector2.from_angle(local_rng.randf_range(0,TAU))*local_rng.randf_range(0.0,1.1)
+				_flower(spot,tint.lightened(local_rng.randf_range(0.0,0.1)),local_rng.randf_range(0.42,0.72))
+			if local_rng.randf()<0.35:
+				_mushroom(center+Vector2(0.45,0.3),local_rng.randf_range(0.8,1.2),Color("#c36c59") if local_rng.randf()<0.5 else Color("#d4ad77"))
+
+func _chunk_roadside_geometry() -> void:
+	# Triangles stay intact even at cell boundaries. Chunk centers are close
+	# enough that a 75-unit radius retains neighboring details from the camera.
+	var buckets: Dictionary = {}
+	for i in range(0,vertices.size(),3):
+		var center: Vector3 = (vertices[i]+vertices[i+1]+vertices[i+2])/3.0
+		var key := Vector2i(floori(center.x/24.0),floori(center.z/24.0))
+		if not buckets.has(key): buckets[key] = {"vertices":[],"colors":[]}
+		for j in 3:
+			buckets[key].vertices.append(vertices[i+j])
+			buckets[key].colors.append(colors[i+j])
+	detail_chunks = Node3D.new()
+	detail_chunks.name = "WoodlandDetailChunks"
+	add_child(detail_chunks)
+	for key: Vector2i in buckets:
+		var origin := Vector3((float(key.x)+0.5)*24.0,0.0,(float(key.y)+0.5)*24.0)
+		vertices = PackedVector3Array(buckets[key].vertices)
+		for index in vertices.size(): vertices[index] -= origin
+		colors = PackedColorArray(buckets[key].colors)
+		var chunk: MeshInstance3D = _flush("WoodlandDetail_%d_%d" % [key.x,key.y],detail_chunks)
+		chunk.position = origin
+		chunk.visibility_range_end = 75.0
+		chunk.visibility_range_end_margin = 4.0
+
 func _forest() -> void:
-	var placed: Array[Vector2] = []
+	# Existing deeper-forest trees also respect the new roadside trunks.
+	var placed: Array[Vector2] = roadside_tree_positions.duplicate()
+	var forest_count: int = 0
 	for attempt in 5000:
-		if placed.size()>=630: break
+		if forest_count>=630: break
 		var p := Vector2(rng.randf_range(-154,154),rng.randf_range(-154,154))
 		if Layout.is_walkable(p,Layout.all_flags()): continue
 		var hides_clearing: bool = false
@@ -245,6 +393,7 @@ func _forest() -> void:
 			if p.distance_to(other)<6.0: close = true; break
 		if close: continue
 		placed.append(p)
+		forest_count += 1
 		var size: float = rng.randf_range(0.85,1.35)
 		_column(_point(p.x,p.y),0.24*size,3.3*size,Color("#76624b"),0.6)
 		_crown(_point(p.x,p.y,3.5*size),Vector3(1.9,1.8,1.7)*size,Color("#71905f"))

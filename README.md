@@ -25,7 +25,7 @@ A Windows Desktop export preset is included. Export templates are needed only wh
 
 The game now starts with two level cards. **The Quiet Bloom** keeps the existing valley, nine sanctuaries and open woodland. **The Returning Wood** is a separate journey built around long curling branches, healing tools and returns to earlier wounds. Both levels are available from the start. Begin replaces only the selected journey after a second click when a save already exists; Continue resumes that journey. Press Escape in either level and choose **Level select** to switch.
 
-The Returning Wood now has fourteen primary paths and nine unlockable shortcuts, totaling 3,114.33 units of centerline inside 312 by 312 unit bounds. That is 3 times its previous bounded area and 2.91 times its route length. The original curls now connect to wetlands, burned woodland, a northern ridge and southern return walks.
+The Returning Wood now has fourteen primary paths and nine unlockable shortcuts, totaling 3,114.33 units of centerline inside 312 by 312 unit bounds. That is 3 times its previous bounded area and 2.91 times its route length. The original curls now connect to wetlands, burned woodland, a northern ridge and southern return walks. The walks now pass yellow, orange and purple flowers, mushrooms, moss and closer trees. Little grassy mounds and pools of sunlight fill spaces between the lanes; the mounds are scenery beyond the walking corridors.
 
 | Tool | Where to find it | Where to return | What healing opens |
 | --- | --- | --- | --- |
@@ -186,6 +186,7 @@ godot --headless --path . --script tests/secondwood_traversal.gd
 godot --headless --path . --script tests/secondwood_relics.gd
 godot --headless --path . --script tests/frog_banjo.gd
 godot --headless --path . --script tests/woodland_life.gd
+godot --headless --path . --script tests/secondwood_scenery.gd
 godot --headless --path . --script tests/secondwood_ambience_integration.gd
 godot --headless --path . --script tools/audit-secondwood.gd
 python tools/audit-secondwood-shortcuts.py
