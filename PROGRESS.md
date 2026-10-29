@@ -1,5 +1,9 @@
 # Project NVS progress
 
+## Forest-floor follow-up, 2026-10-29
+
+Added 1,005 low ferns, paired grass tufts and 51 small mossy fallen logs between the existing flower patches. A separate deterministic seed preserves the previous planting; all new details join the existing distance-culled meshes. Footprint checks keep every fern and log clear of all corridors and encounters. Current map and detail geometry totals 408,362 triangles. Native scenery, continuous quest and woodland-life checks pass; five updated rendered views were inspected. The earlier software benchmark describes the preceding scenery pass and has not been repeated for this small ground-cover addition.
+
 ## Returning Wood scenery, 2026-10-29
 
 - Added deterministic, batched clusters of 11,563 yellow, orange and purple flowers, 1,335 mushrooms, 669 moss patches and 368 roadside trees, including the spaces between winding lanes. Existing woodland trees remain. The small plants are decorative.

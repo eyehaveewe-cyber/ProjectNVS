@@ -18,6 +18,7 @@ var rng := RandomNumberGenerator.new()
 # Metrics are for placement checks, not collision; scenery remains visual.
 var scenery_counts: Dictionary = {"flowers":0,"mushrooms":0,"moss":0,"trees":0}
 var roadside_tree_positions: Array[Vector2] = []
+var floor_details: Array[Dictionary] = []
 var detail_chunks: Node3D
 
 static func height_at(x: float, z: float) -> float:
@@ -45,6 +46,7 @@ func build(shared_material: Material = null) -> void:
 	vertices = PackedVector3Array()
 	colors = PackedColorArray()
 	_roadside_vegetation()
+	_forest_floor()
 	_chunk_roadside_geometry()
 	vertices = base_vertices
 	colors = base_colors
@@ -344,6 +346,48 @@ func _roadside_vegetation() -> void:
 				_flower(spot,tint.lightened(local_rng.randf_range(0.0,0.1)),local_rng.randf_range(0.42,0.72))
 			if local_rng.randf()<0.35:
 				_mushroom(center+Vector2(0.45,0.3),local_rng.randf_range(0.8,1.2),Color("#c36c59") if local_rng.randf()<0.5 else Color("#d4ad77"))
+
+func _fern(p: Vector2, size: float) -> void:
+	var base: Vector3 = _point(p.x,p.y,0.04)
+	for i in 6:
+		var direction := Vector3(cos(TAU*i/6.0),0,sin(TAU*i/6.0))
+		var side := Vector3(-direction.z,0,direction.x)
+		var tip: Vector3 = base+direction*size+Vector3.UP*size*0.42
+		var middle: Vector3 = base.lerp(tip,0.55)+Vector3.UP*size*0.15
+		_tri(base,middle+side*size*0.18,tip,Color("#83a65b"))
+		_tri(base,tip,middle-side*size*0.18,Color("#628d50"))
+
+func _forest_floor() -> void:
+	# A separate seed preserves existing flowers and landmarks. All of this
+	# ground cover joins the same spatially culled meshes as the blossoms.
+	var plant_rng := RandomNumberGenerator.new()
+	plant_rng.seed = 417632
+	for x in range(-148,149,6):
+		for z in range(-148,149,6):
+			var p := Vector2(x+plant_rng.randf_range(-2.0,2.0),z+plant_rng.randf_range(-2.0,2.0))
+			var distance: float = _nearest_route(p)
+			if distance<4.2 or distance>14.0 or not _away_from_clearings(p,3.0): continue
+			var size: float = plant_rng.randf_range(0.45,0.75)
+			floor_details.append({"position":p,"radius":size,"kind":"fern"})
+			_fern(p,size)
+			# Low grass tufts vary the outline of bare patches with only six
+			# triangles each; warm eastern grass and cool wetland leaves differ.
+			for clump in 2:
+				var q: Vector2 = p+Vector2.from_angle(plant_rng.randf_range(0,TAU))*0.7
+				var base: Vector3 = _point(q.x,q.y,0.035)
+				var tint := Color("#a6ae65") if p.x>80 else Color("#7f9958")
+				for blade in 3:
+					var side := Vector3(cos(blade*2.1),0,sin(blade*2.1))*0.08
+					_tri(base-side,base+side,base+Vector3(0.1,0.25+blade*0.07,0.04),tint)
+			if distance>7.0 and _away_from_clearings(p,5.0) and plant_rng.randf()<0.075:
+				var direction: Vector2 = Vector2.from_angle(plant_rng.randf_range(0,TAU))
+				var start: Vector2 = p-direction*1.1
+				var end: Vector2 = p+direction*1.1
+				_beam(_point(start.x,start.y,0.22),_point(end.x,end.y,0.22),0.22,Color("#756143"))
+				for j in 3:
+					var patch: Vector2 = start.lerp(end,float(j+1)/4.0)
+					_crown(_point(patch.x,patch.y,0.43),Vector3(0.27,0.06,0.18),Color("#8ba760"))
+				floor_details.append({"position":p,"radius":1.35,"kind":"mossy-log"})
 
 func _chunk_roadside_geometry() -> void:
 	# Triangles stay intact even at cell boundaries. Chunk centers are close

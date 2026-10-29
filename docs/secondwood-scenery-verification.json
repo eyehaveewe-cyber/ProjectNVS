@@ -3,6 +3,7 @@
   "centerline_samples": 6420,
   "checks": [
     "Dales are part of the actual secondwood scene",
+    "Fern and mossy log footprints stay outside all paths and encounters",
     "Woodland has many new flower clusters",
     "Woodland has mushrooms, moss and new pathside trees",
     "Every recorded roadside tree has a generated placement",
@@ -18,15 +19,17 @@
     "Shortcut gates still open for their unlocks",
     "Scenery details are spatially chunked for visibility culling"
   ],
-  "detail_chunks": 166,
-  "detail_triangles": 226460,
+  "detail_chunks": 170,
+  "detail_triangles": 247202,
   "failures": [],
+  "ferns": 1005,
   "hills": 177,
   "minimum_hill_clearing_margin": 1.47306241989136,
   "minimum_hill_route_margin": 1.23429431915283,
   "minimum_tree_clearing_edge_distance": 4.03123474121094,
   "minimum_tree_route_distance": 4.82846689224243,
-  "scene_construction_ms": 1993,
+  "mossy_logs": 51,
+  "scene_construction_ms": 2120,
   "scenery": {
     "flowers": 11563,
     "moss": 669,
@@ -36,5 +39,5 @@
   "scope": "One native headless startup timing is indicative, not a frame-rate benchmark. Geometry clearance and complete unlocked centerlines are verified from placement data and the native walkability predicate; visual inspection and actual controller progression are separate.",
   "status": "passed",
   "sun_pools": 16,
-  "total_map_and_detail_triangles": 387620
+  "total_map_and_detail_triangles": 408362
 }

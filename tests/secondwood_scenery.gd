@@ -25,6 +25,17 @@ func run() -> void:
 		dale = Dales.new()
 		map.add_child(dale)
 		dale.build()
+	var floor_safe: bool = true
+	var fern_count: int = 0
+	var log_count: int = 0
+	for detail: Dictionary in map.floor_details:
+		if detail.kind=="fern": fern_count += 1
+		else: log_count += 1
+		for route: Dictionary in Layout.all_routes():
+			if Layout.route_distance(detail.position,route.points)-float(detail.radius)<Layout.CORRIDOR_RADIUS: floor_safe = false
+		for clearing: Dictionary in Layout.CLEARINGS:
+			if Vector2(detail.position).distance_to(clearing.position)-float(detail.radius)<float(clearing.radius): floor_safe = false
+	check("Fern and mossy log footprints stay outside all paths and encounters",floor_safe and fern_count>100 and log_count>5)
 	var counts: Dictionary = map.scenery_counts
 	check("Woodland has many new flower clusters",int(counts.flowers)>100)
 	check("Woodland has mushrooms, moss and new pathside trees",int(counts.mushrooms)>20 and int(counts.moss)>20 and int(counts.trees)>20)
@@ -87,7 +98,7 @@ func run() -> void:
 			if child is MeshInstance3D and child.mesh!=null:
 				for surface in child.mesh.get_surface_count(): detail_triangles += int(child.mesh.surface_get_array_len(surface)/3)
 	check("Scenery details are spatially chunked for visibility culling",chunk_root!=null and chunk_root.get_child_count()>1)
-	var report := {"status":"passed" if failures.is_empty() else "failed","checks":checks,"failures":failures,"scenery":counts,"hills":dale.hill_centers.size(),"sun_pools":dale.sun_centers.size(),"minimum_tree_route_distance":min_route,"minimum_tree_clearing_edge_distance":min_clearing_edge,"minimum_hill_route_margin":min_hill_route_margin,"minimum_hill_clearing_margin":min_hill_clearing_margin,"centerline_samples":samples,"scene_construction_ms":scene_ms,"base_map_triangles":int(mesh.surface_get_array_len(0)/3),"detail_triangles":detail_triangles,"total_map_and_detail_triangles":int(mesh.surface_get_array_len(0)/3)+detail_triangles,"detail_chunks":chunk_root.get_child_count() if chunk_root!=null else 0,"scope":"One native headless startup timing is indicative, not a frame-rate benchmark. Geometry clearance and complete unlocked centerlines are verified from placement data and the native walkability predicate; visual inspection and actual controller progression are separate."}
+	var report := {"status":"passed" if failures.is_empty() else "failed","checks":checks,"failures":failures,"scenery":counts,"ferns":fern_count,"mossy_logs":log_count,"hills":dale.hill_centers.size(),"sun_pools":dale.sun_centers.size(),"minimum_tree_route_distance":min_route,"minimum_tree_clearing_edge_distance":min_clearing_edge,"minimum_hill_route_margin":min_hill_route_margin,"minimum_hill_clearing_margin":min_hill_clearing_margin,"centerline_samples":samples,"scene_construction_ms":scene_ms,"base_map_triangles":int(mesh.surface_get_array_len(0)/3),"detail_triangles":detail_triangles,"total_map_and_detail_triangles":int(mesh.surface_get_array_len(0)/3)+detail_triangles,"detail_chunks":chunk_root.get_child_count() if chunk_root!=null else 0,"scope":"One native headless startup timing is indicative, not a frame-rate benchmark. Geometry clearance and complete unlocked centerlines are verified from placement data and the native walkability predicate; visual inspection and actual controller progression are separate."}
 	var output := FileAccess.open("res://docs/secondwood-scenery-verification.json",FileAccess.WRITE)
 	output.store_string(JSON.stringify(report,"  "))
 	output.close()
