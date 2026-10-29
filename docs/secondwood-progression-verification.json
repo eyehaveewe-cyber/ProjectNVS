@@ -68,6 +68,28 @@
     "Physical MBean keys finish the final song and chapter",
     "Completion preserves all healing tools for further revisits",
     "Completed chapter reloads with completion and every shortcut",
+    "Old grove completion does not finish Artemis quest",
+    "Eastern relic can be found first using the existing Living Spore",
+    "Continue preserves partial spatial root repair",
+    "Three local E bindings reconnect the eastern bridge",
+    "Far southern latch joins both outer branches",
+    "Western relic is cleaned with the retained Vessel",
+    "Vessel repairs a second site at wetland sluice",
+    "Revisiting restored source attunes the Moon Lens",
+    "Lens shows partial progress for physical D",
+    "Releasing D resets only incomplete hold",
+    "Wrong pitch never opens Moon crossing",
+    "Focus loss pauses and cancels incomplete lens hold",
+    "Mute cancels lens focus and releases notes",
+    "Accessible Hold D toggle permanently reveals western roots",
+    "Root Spool remains reusable at a second crossing",
+    "Artemis entrusts acorn after both crossings and three healings",
+    "Carried unique acorn survives Continue",
+    "Planting with Spindle grows young canopy and opens descent",
+    "Planted acorn and changed world survive Continue",
+    "Controller walks ridge-descent outward continuously",
+    "Changed return and physical song complete Artemis quest",
+    "New finale persists independently of original won flag",
     "Malformed save rejects unknown IDs, impossible Spindle and false completion",
     "Continuous quest walking keeps the visible faun aligned",
     "Level-two pause return reaches the real level selection scene",
@@ -83,7 +105,7 @@
     "Test never changes the real player save user://journey.json",
     "Test never changes the real player save user://secondwood.json"
   ],
-  "controller_steps": 14440,
+  "controller_steps": 30471,
   "engine": "4.7.2-stable (official)",
   "failures": [],
   "player_relocations": 0,
@@ -274,26 +296,33 @@
       "arrived": true,
       "bad_steps": 0,
       "direction": "return",
-      "distance": 46.208815202117,
+      "distance": 46.2088149338961,
       "route": "ash-approach"
     },
     {
       "arrived": true,
       "bad_steps": 0,
       "direction": "outward",
-      "distance": 27.0400013625622,
+      "distance": 27.0400011986494,
       "route": "hollow-approach"
     },
     {
       "arrived": true,
       "bad_steps": 0,
       "direction": "outward",
-      "distance": 169.784583576024,
+      "distance": 169.784575082362,
       "route": "final-curl"
+    },
+    {
+      "arrived": true,
+      "bad_steps": 0,
+      "direction": "outward",
+      "distance": 51.4387564361095,
+      "route": "ridge-descent"
     }
   ],
-  "scope": "The quest journey starts through the real selection button, then walks authored paths continuously using the real chapter-two controller, including three newly opened shortcuts and return visits. Healing and the final song use physical keyboard events. Save/Continue resets the scene from its own on-disk record. Separate scene reconstruction tests Continue for both chapters and a confirmed first-valley reset while retaining chapter two. No spatial relocation or direct quest mutation is used for gameplay progress. Fixed simulated steps are not a frame-rate or human wayfinding measurement.",
-  "simulated_seconds": 722.0,
+  "scope": "The quest journey starts through the real selection button, then walks authored paths continuously using the real chapter-two controller, including original healing, both relics, six new shortcuts, partial repair save/resume, acorn planting and final return. Healing and the final song use physical keyboard events. Save/Continue resets the scene from its own on-disk record. Separate scene reconstruction tests Continue for both chapters and a confirmed first-valley reset while retaining chapter two. No spatial relocation or direct quest mutation is used for gameplay progress. Fixed simulated steps are not a frame-rate or human wayfinding measurement.",
+  "simulated_seconds": 1523.55,
   "status": "passed",
-  "walked_distance": 2304.84750957787
+  "walked_distance": 4866.29097290337
 }

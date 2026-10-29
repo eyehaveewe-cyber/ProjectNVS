@@ -9,6 +9,8 @@ var site_nodes: Dictionary = {}
 var damaged_nodes: Dictionary = {}
 var growth_tweens: Dictionary = {}
 var healed: Array = []
+var bridge_nodes: Dictionary = {}
+var sapling: Node3D
 var vertices := PackedVector3Array()
 var colors := PackedColorArray()
 var material: Material
@@ -27,7 +29,7 @@ func build(shared_material: Material = null) -> void:
 		m.cull_mode = BaseMaterial3D.CULL_DISABLED
 		material = m
 	_ground()
-	for route: Dictionary in Layout.all_routes(): _trail(route.points,Color("#b8ad89") if str(route.requires).is_empty() else Color("#aaa989"))
+	for route: Dictionary in Layout.all_routes(): _trail(route.points,Color("#b8ad89") if route.requires.is_empty() else Color("#aaa989"))
 	for clearing: Dictionary in Layout.CLEARINGS:
 		_disc(clearing.position,float(clearing.radius),Color("#819b70"))
 		_sign(clearing.position+Vector2(3.3,2.0),str(clearing.name))
@@ -36,7 +38,7 @@ func build(shared_material: Material = null) -> void:
 	_landmarks()
 	geometry = _flush("SecondWoodBatchedGeometry",self)
 	for route: Dictionary in Layout.all_routes():
-		if not str(route.requires).is_empty(): _gate(route)
+		if not route.requires.is_empty(): _gate(route)
 	for id: String in Layout.SITES:
 		var site: Dictionary = Layout.SITES[id]
 		var soil: Color = Color("#9a8463") if id=="source" else Color("#65556e") if id=="hollow" else Color("#5b5750")
@@ -54,6 +56,27 @@ func build(shared_material: Material = null) -> void:
 		if id=="source":
 			_disc(site.position,2.0,Color("#8cbcb9"),0.03)
 			_flush("SpringWater",group)
+	for route: Dictionary in Layout.SHORTCUTS:
+		if route.id in ["source-cut","hollow-cut","ash-cut"]: continue
+		var group := Node3D.new()
+		group.name = "LivingBridge_"+str(route.id)
+		add_child(group)
+		for i in range(1,route.points.size()):
+			for side in [-0.65,0.65]:
+				var a: Vector2 = route.points[i-1]+Vector2(side,0)
+				var b: Vector2 = route.points[i]+Vector2(side,0)
+				_beam(_point(a.x,a.y,0.09),_point(b.x,b.y,0.09),0.16,Color("#9cab72"))
+		_flush("ReconnectedRoots",group)
+		bridge_nodes[route.id] = group
+	sapling = Node3D.new()
+	sapling.name = "ArtemisYoungCanopy"
+	add_child(sapling)
+	_column(_point(Layout.CROWN.x,Layout.CROWN.y),0.24,3.0,Color("#92734c"),0.4)
+	for i in 5:
+		var p: Vector2 = Layout.CROWN+Vector2.from_angle(TAU*i/5.0)*1.1
+		_beam(_point(0,-130,1.6),_point(p.x,p.y,2.8),0.08,Color("#92734c"))
+		_crown(_point(p.x,p.y,3.0),Vector3(1.1,0.8,1.0),Color("#b4ce7c"))
+	_flush("Sapling",sapling)
 	sync([])
 
 func is_clear(x: float, z: float, current_healed: Variant = null) -> bool:
@@ -63,7 +86,15 @@ func sync(current_healed: Array, animate: bool = false) -> void:
 	var previous: Array = healed.duplicate()
 	healed = current_healed.duplicate()
 	for route: Dictionary in Layout.all_routes():
-		if gates.has(str(route.id)): gates[str(route.id)].visible = not Layout.requirements_met(str(route.requires),healed)
+		if gates.has(str(route.id)): gates[str(route.id)].visible = not Layout.requirements_met(route.requires,healed)
+	for route: Dictionary in Layout.SHORTCUTS:
+		if bridge_nodes.has(route.id): bridge_nodes[route.id].visible = Layout.requirements_met(route.requires,healed)
+	if sapling!=null:
+		sapling.visible = healed.has("planted")
+		if not animate: sapling.scale = Vector3.ONE
+		elif healed.has("planted") and not previous.has("planted"):
+			sapling.scale = Vector3.ONE*0.05
+			create_tween().tween_property(sapling,"scale",Vector3.ONE,2.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	for id: String in site_nodes:
 		var group: Node3D = site_nodes[id]
 		group.visible = healed.has(id)
@@ -111,8 +142,8 @@ func _flush(label: String, parent: Node) -> MeshInstance3D:
 	return node
 
 func _ground() -> void:
-	for x in range(-98,98,4):
-		for z in range(-98,98,4):
+	for x in range(-164,164,4):
+		for z in range(-164,164,4):
 			var tint: Color = Color("#62765b").lightened(rng.randf_range(0.0,0.09))
 			_quad(_point(x,z),_point(x+4,z),_point(x+4,z+4),_point(x,z+4),tint)
 
@@ -194,10 +225,10 @@ func _banks() -> void:
 
 func _forest() -> void:
 	var placed: Array[Vector2] = []
-	for attempt in 1500:
-		if placed.size()>=210: break
-		var p := Vector2(rng.randf_range(-88,88),rng.randf_range(-88,88))
-		if Layout.is_walkable(p,["source","hollow","ash"]): continue
+	for attempt in 5000:
+		if placed.size()>=630: break
+		var p := Vector2(rng.randf_range(-154,154),rng.randf_range(-154,154))
+		if Layout.is_walkable(p,Layout.all_flags()): continue
 		var hides_clearing: bool = false
 		for clearing: Dictionary in Layout.CLEARINGS:
 			var local: Vector2 = p-Vector2(clearing.position)
@@ -223,7 +254,18 @@ func _gate(route: Dictionary) -> void:
 	var points: Array = route.points
 	var start: Vector2 = points[0]
 	var direction: Vector2 = (Vector2(points[1])-start).normalized()
-	var p: Vector2 = start+direction*6.5
+	var distance: float = 6.5
+	if str(route.id) in ["west-sluice","west-ridge-roots","east-root-bridge","ash-east-cut","south-return","ridge-descent"]:
+		# Keep visible roots outside the interaction clearing, where the closed
+		# floor actually stops. Repairs must never stand inside their own gate.
+		for step in 24:
+			var candidate: Vector2 = start+direction*distance
+			var inside: bool = false
+			for clearing: Dictionary in Layout.CLEARINGS:
+				if candidate.distance_to(clearing.position)<float(clearing.radius)+0.6: inside = true
+			if not inside or distance>=start.distance_to(points[1])-1.0: break
+			distance += 0.5
+	var p: Vector2 = start+direction*distance
 	var side := Vector2(-direction.y,direction.x)
 	var group := Node3D.new()
 	group.name = "Roots_"+str(route.id)
@@ -234,7 +276,18 @@ func _gate(route: Dictionary) -> void:
 		_beam(_point(q.x,q.y,0.5),_point(q.x+direction.x*0.8,q.y+direction.y*0.8,1.7),0.11,Color("#85715b"))
 	_flush("TangledRoots",group)
 	gates[str(route.id)] = group
-	_sign(p+side*4.0,"ROOTS AWAIT THE " + ("THREE HEALINGS" if str(route.requires)=="all" else str(Layout.SITES[str(route.requires)].name).replace("The ","").to_upper()),group)
+	var hint: String = "ROOTS AWAIT "
+	for flag: String in route.requires:
+		hint += (str(Layout.SITES[flag].name).to_upper() if Layout.SITES.has(flag) else flag.replace("-"," ").to_upper())+" "
+	_sign(p+side*4.0,hint,group)
+	# New links have two visible approaches. The shared floor predicate keeps
+	# their entire unopened corridor closed even on a long movement frame.
+	if str(route.id) in ["west-sluice","west-ridge-roots","east-root-bridge","ash-east-cut","south-return","ridge-descent"]:
+		var end: Vector2 = points.back()
+		var back: Vector2 = (Vector2(points[points.size()-2])-end).normalized()
+		var q: Vector2 = end+back*6.5
+		_beam(_point(q.x-back.y*2.5,q.y+back.x*2.5,0.4),_point(q.x+back.y*2.5,q.y-back.x*2.5,1.2),0.35,Color("#685549"))
+		_sign(q+Vector2(-back.y,back.x)*4.0,hint,group)
 	_flush("GateSignPost_"+str(route.id),group)
 
 func _sign(point: Vector2, text: String, parent: Node = null) -> void:
@@ -252,6 +305,16 @@ func _sign(point: Vector2, text: String, parent: Node = null) -> void:
 
 func _landmarks() -> void:
 	_sign(Vector2(-5,47),"WEST: SPRING VESSEL\nEAST: LIVING SPORE\nNORTH: THE WOUNDED WALKS")
+	_sign(Vector2(-98,66),"WEST: MIRROR WETLAND\nMOON LENS · BRING SPRING WATER")
+	_sign(Vector2(101,62),"EAST: CINDER LOOM · ROOT SPOOL")
+	_sign(Vector2(-69,-100),"NORTH: CROWN CLEARING")
+	# Wetland pools and blackened eastern stumps give the outer loops distinct silhouettes.
+	for i in 24:
+		var angle: float = TAU*i/24.0
+		var wet := Vector2(-122,10)+Vector2(cos(angle)*15.0,sin(angle)*14.0)
+		if not Layout.is_walkable(wet,Layout.all_flags()): _disc(wet,2.0,Color("#709fa2"),0.035)
+		var burned := Vector2(122,-15)+Vector2(cos(angle)*14.0,sin(angle)*15.0)
+		if not Layout.is_walkable(burned,Layout.all_flags()): _column(_point(burned.x,burned.y),0.35,2.0+float(i%4)*0.5,Color("#504b46"),0.5)
 	# A dry stone basin, poisoned roots and charcoal stumps remain after
 	# healing; the returning water and small flowers show what changed.
 	for i in 9:

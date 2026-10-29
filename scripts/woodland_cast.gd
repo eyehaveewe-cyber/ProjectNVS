@@ -22,11 +22,15 @@ func configure(owner_game: Node) -> void:
 		dryad.position = ground(point.x,point.y)
 		dryad.set_meta("home",dryad.position)
 		dryads.append(dryad)
-	artemis = create_animal("deer")
-	artemis.name = "Artemis"
-	artemis.scale = Vector3.ONE*3.25
+	artemis = create_artemis()
 	add_child(artemis)
 	artemis.position = ground(13.0,60.0)
+	artemis.hide()
+
+func create_artemis() -> Node3D:
+	var artemis := create_animal("deer")
+	artemis.name = "Artemis"
+	artemis.scale = Vector3.ONE*3.25
 	_artemis_coat(artemis)
 	var crown := Node3D.new()
 	crown.name = "MoonCrown"
@@ -39,7 +43,7 @@ func configure(owner_game: Node) -> void:
 	var halo := _ring(artemis,Color(0.83,0.96,0.72,0.35))
 	halo.position.y = 0.025
 	halo.scale = Vector3(1.65,1.0,1.65)
-	artemis.hide()
+	return artemis
 
 func ground(x: float, z: float) -> Vector3:
 	var y: float = 0.18+sin(x*0.12+0.5)*0.16+cos(z*0.14-0.3)*0.12+sin((x+z)*0.18)*0.075

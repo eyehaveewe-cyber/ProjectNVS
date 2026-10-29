@@ -1,3 +1,5 @@
+HISTORICAL HANDOFF: implemented in the subsequent Artemis expansion. See ARTEMIS_IMPLEMENTATION.md for actual dimensions, behavior and verification. The text below preserves the original proposal.
+
 PROJECT NVS — ARTEMIS EXPANSION HANDOFF FOR TERRA
 Planning revision 0.5, 28 October 2026. Not implemented or tested.
 

@@ -47,7 +47,7 @@ func walk_to(target: Vector2) -> Dictionary:
 		distance += moved
 		walked += moved
 		stalls = stalls+1 if moved<0.00001 else 0
-		if moved>STEP*SPEED+0.002 or not game.map.is_clear(after.x,after.y,game.state.healed): jumps += 1
+		if moved>STEP*SPEED+0.002 or not game.map.is_clear(after.x,after.y,game.state.flags()): jumps += 1
 		if stalls>=10: break
 	game.touch_move = Vector2.ZERO
 	return {"walked":distance,"stalls":stalls,"bad_steps":jumps,"endpoint_error":p().distance_to(target)}
@@ -114,10 +114,10 @@ func run() -> void:
 			for n in range(steps+1):
 				var sample: Vector2 = a.lerp(b,float(n)/steps)
 				samples += 1
-				if not game.map.is_clear(sample.x,sample.y,["source","hollow","ash"]):
+				if not game.map.is_clear(sample.x,sample.y,Layout.all_flags()):
 					check("Open authored centerline remains within physical floor "+str(route.id),false)
-	check("Second wood has long authored branching and curling walks",Layout.PATHS.size()>=8 and path_length>900 and Layout.SHORTCUTS.size()==3)
-	check("Added shortcuts are shorter traversable connections",shortcut_length>50 and shortcut_length<150)
+	check("Second wood has long authored branching and curling walks",Layout.PATHS.size()>=8 and path_length>900 and Layout.SHORTCUTS.size()==9)
+	check("Added shortcuts are shorter traversable connections",length>=3050 and length<=3350 and Layout.BOUNDS==156)
 	var initial: Dictionary = reachable_cells([])
 	check("Initial physical floor connects entrance, keeper and all three visible wounds",contains(initial,Layout.HUB) and contains(initial,Layout.SITES.source.position) and contains(initial,Layout.SITES.hollow.position) and contains(initial,Layout.SITES.ash.position))
 	check("Both initial long branches are physically reachable before healing",contains(initial,Layout.ITEMS.vessel.position) and contains(initial,Layout.ITEMS.spore.position))
@@ -140,7 +140,7 @@ func run() -> void:
 				var point: Vector2 = a.lerp(b,float(n)/10.0)
 				if not game.map.is_clear(point.x,point.y,[]):
 					closed_points += 1
-					if game.map.is_clear(point.x,point.y,[str(shortcut.requires)]): newly_open += 1
+					if game.map.is_clear(point.x,point.y,shortcut.requires): newly_open += 1
 		check(str(shortcut.id)+" changes blocked ground into a usable return",closed_points>0 and newly_open==closed_points)
 		shortcut_samples.append({"id":shortcut.id,"new_walkable_samples":newly_open})
 	# A long frame must not jump through a sealed branch. This is an explicit
@@ -155,7 +155,10 @@ func run() -> void:
 	# the continuous quest test proves how these states are actually obtained.
 	game.state.inventory.assign(["vessel","spore","spindle"])
 	game.state.healed.assign(["source","hollow","ash"])
-	game.map.sync(game.state.healed)
+	game.state.inventory.append_array(["lens","spool"])
+	game.state.crossings_complete.assign(["west-sluice","west-ridge-roots","east-root-bridge","ash-east-cut","south-return"])
+	game.state.acorn_state = "planted"
+	game.map.sync(game.state.flags())
 	var reports: Array = []
 	for definition: Dictionary in Layout.all_routes():
 		var points: Array = definition.points

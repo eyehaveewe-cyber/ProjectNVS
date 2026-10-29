@@ -1,0 +1,14 @@
+{
+  "captures": [
+    "artemis-turning-glade.jpg",
+    "artemis-mirror-wetland.jpg",
+    "artemis-lens-progress.jpg",
+    "artemis-root-repair.jpg",
+    "artemis-young-canopy.jpg",
+    "artemis-expanded-map.jpg",
+    "artemis-finale.jpg"
+  ],
+  "engine": "4.7.2-stable (official)",
+  "scope": "Native rendered screenshots use explicit relocations and arranged quest fixtures for visual review. Separate progression report walks the real quest with zero relocations.",
+  "status": "passed"
+}

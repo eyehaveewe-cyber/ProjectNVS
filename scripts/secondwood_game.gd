@@ -34,6 +34,14 @@ var items: Dictionary = {}
 var site_markers: Dictionary = {}
 var particles: Array[Dictionary] = []
 var cast: Node3D
+var artemis: Node3D
+var target_markers: Dictionary = {}
+var anchor_markers: Dictionary = {}
+var canopy_residents: Array[Node3D] = []
+var lens_toggle: bool = false
+var lens_button: Button
+var lens_meter: ProgressBar
+var lens_beam: MeshInstance3D
 var keeper: Node3D
 var residents: Dictionary = {}
 var hud: Control
@@ -62,8 +70,8 @@ class RouteOverview extends Control:
 		draw_rect(Rect2(Vector2.ZERO,size),Color("#1c3734"))
 		draw_rect(Rect2(Vector2.ONE,size-Vector2.ONE*2),Color("#86a48a"),false,1)
 		for route: Dictionary in Layout.PATHS+Layout.SHORTCUTS:
-			var open: bool = Layout.requirements_met(str(route.get("requires","")),game.state.healed)
-			var color := Color("#bfc493") if open else Color("#526464")
+			var open: bool = Layout.requirements_met(route.get("requires",[]),game.state.flags())
+			var color := (Color("#a6d9b0") if Layout.SHORTCUTS.has(route) else Color("#bfc493")) if open else Color("#526464")
 			var points: Array = route.points
 			for i in range(1,points.size()): draw_line(point(points[i-1]),point(points[i]),color,2.0 if open else 1.0,true)
 		for id: String in Layout.SITES:
@@ -71,11 +79,18 @@ class RouteOverview extends Control:
 			draw_circle(p,5,Color("#b6df93") if game.state.healed.has(id) else Color("#dc9a72"))
 			var name: String = str(Layout.SITES[id].name)
 			var width: float = ThemeDB.fallback_font.get_string_size(name,HORIZONTAL_ALIGNMENT_LEFT,-1,11).x
-			draw_string(ThemeDB.fallback_font,p+Vector2(-width*0.5,-9),name,HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#eee5c6"))
+			draw_string(ThemeDB.fallback_font,p+(Vector2(-width-8,3) if id=="source" else Vector2(8,14) if id=="hollow" else Vector2(-width*0.5,-9)),name,HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#eee5c6"))
 		for id: String in Layout.ITEMS:
 			if game.state.inventory.has(id): continue
 			var p: Vector2 = point(Layout.ITEMS[id].position)
 			draw_colored_polygon(PackedVector2Array([p+Vector2(0,-4),p+Vector2(4,0),p+Vector2(0,4),p+Vector2(-4,0)]),Color("#e5c76d"))
+		for id: String in Layout.TARGETS:
+			var p: Vector2 = point(Layout.TARGETS[id].position)
+			draw_circle(p,3,Color("#bce2df") if game.state.crossings_complete.has(id) else Color("#d9a6e0"))
+		draw_circle(point(Layout.CROWN),6,Color("#b6d985"),false,2)
+		draw_string(ThemeDB.fallback_font,point(Layout.CROWN)+Vector2(8,0),"Crown Clearing",HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#ecdfb0"))
+		for landmark: Dictionary in [{"p":Layout.LENS,"name":"Mirror Wetland","offset":Vector2(-5,-14)},{"p":Layout.SPOOL,"name":"Cinder Loom","offset":Vector2(-55,-14)},{"p":Layout.HUB,"name":"Artemis","offset":Vector2(-18,17)}]:
+			draw_string(ThemeDB.fallback_font,point(landmark.p)+Vector2(landmark.offset),str(landmark.name),HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#ecdfb0"))
 		draw_circle(point(Layout.HUB),3,Color("#e8d8b1"))
 		draw_circle(point(Layout.FINAL),6,Color("#d5bde3"),false,2,true)
 		draw_string(ThemeDB.fallback_font,point(Layout.FINAL)+Vector2(8,4),"Final grove",HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#e2cfe9"))
@@ -121,6 +136,7 @@ func _ready() -> void:
 
 func start_level(resume: bool = false) -> void:
 	music.stop()
+	lens_toggle = false
 	held_keys.clear()
 	modifiers.clear()
 	state = State.new()
@@ -130,8 +146,9 @@ func start_level(resume: bool = false) -> void:
 		state.restore(saved)
 	else:
 		state.player.yaw = camera_yaw+PI
-	map.sync(state.healed)
-	if not map.is_clear(float(state.player.x),float(state.player.z),state.healed):
+	map.sync(state.flags())
+	_sync_relics()
+	if not map.is_clear(float(state.player.x),float(state.player.z),state.flags()):
 		state.player.x = Layout.ENTRY.x
 		state.player.z = Layout.ENTRY.y
 	started = true
@@ -151,7 +168,7 @@ func start_level(resume: bool = false) -> void:
 	_sync_position()
 	_update_camera(1.0)
 	update_hud()
-	_toast("The branching wood keeps its wounds in sight. Speak with the keeper at the lantern fork.")
+	_toast("The branching wood keeps its wounds in sight. Artemis waits beside the lantern fork.")
 	save_game()
 
 func _read_save(path: String) -> Variant:
@@ -204,12 +221,57 @@ func _make_discoveries() -> void:
 	keeper.name = "WoodlandKeeper"
 	keeper.position = _ground(Layout.HUB+Vector2(-2.0,1.0))
 	add_child(keeper)
+	artemis = cast.create_artemis()
+	artemis.position = _ground(Layout.ARTEMIS)
+	add_child(artemis)
+	for id: String in Layout.TARGETS:
+		var marker := _gem(Color("#c7b2e5"),0.25)
+		marker.position = _ground(Layout.TARGETS[id].position,0.5)
+		marker.name = "RelicTarget_"+id
+		add_child(marker)
+		target_markers[id] = marker
+	for id: String in Layout.ANCHORS:
+		anchor_markers[id] = []
+		for anchor: Vector2 in Layout.ANCHORS[id]:
+			var marker := _gem(Color("#e3ca7f"),0.22)
+			marker.position = _ground(anchor,0.45)
+			add_child(marker)
+			var caption := Label3D.new()
+			caption.text = "ROOT ANCHOR %d · E" % (anchor_markers[id].size()+1)
+			caption.font_size = 28
+			caption.pixel_size = 0.008
+			caption.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			caption.position.y = 0.7
+			marker.add_child(caption)
+			var stump := MeshInstance3D.new()
+			var wood := CylinderMesh.new()
+			wood.top_radius = 0.18
+			wood.bottom_radius = 0.24
+			wood.height = 0.5
+			wood.radial_segments = 6
+			stump.mesh = wood
+			stump.material_override = _material(Color("#867251"))
+			stump.position.y = -0.3
+			marker.add_child(stump)
+			anchor_markers[id].append(marker)
+	for i in 4:
+		var animal: Node3D = cast.create_animal("bird" if i%2 else "rabbit")
+		animal.position = _ground(Layout.CROWN+Vector2.from_angle(i*TAU/4.0)*2.5)
+		add_child(animal)
+		canopy_residents.append(animal)
 	for id: String in Layout.SITES:
 		var animal: Node3D = cast.create_animal("bird" if id=="source" else "rabbit")
 		animal.position = _ground(Layout.SITES[id].position+Vector2(1.3,1.3))
 		animal.hide()
 		add_child(animal)
 		residents[id] = animal
+	lens_beam = MeshInstance3D.new()
+	var beam_mesh := BoxMesh.new()
+	beam_mesh.size = Vector3(0.12,0.08,1.0)
+	lens_beam.mesh = beam_mesh
+	lens_beam.material_override = _material(Color("#e9efbe"))
+	lens_beam.hide()
+	add_child(lens_beam)
 	var lantern := _gem(Color("#e6c57e"),0.25)
 	lantern.position = _ground(Layout.HUB,1.5)
 	add_child(lantern)
@@ -245,12 +307,24 @@ func _physics_process(delta: float) -> void:
 		for i in count:
 			var nx: float = clampf(float(state.player.x)+step.x,-Layout.BOUNDS,Layout.BOUNDS)
 			var nz: float = clampf(float(state.player.z)+step.y,-Layout.BOUNDS,Layout.BOUNDS)
-			if map.is_clear(nx,float(state.player.z),state.healed): state.player.x = nx
-			if map.is_clear(float(state.player.x),nz,state.healed): state.player.z = nz
+			if map.is_clear(nx,float(state.player.z),state.flags()): state.player.x = nx
+			if map.is_clear(float(state.player.x),nz,state.flags()): state.player.z = nz
 		state.player.yaw = lerp_angle(float(state.player.yaw),atan2(direction.x,direction.y),minf(1.0,delta*13.0))
+	var pitches: Array = held_keys.values()
+	if lens_toggle: pitches.append(62)
+	var lens_event: Dictionary = state.hold_lens(delta,pitches,playing)
+	if not lens_event.is_empty():
+		if lens_toggle: music.note_off(62)
+		lens_toggle = false
+		_apply_quest_event(lens_event)
+	_update_lens_beam()
 	_sync_position()
 	faun.animate(delta,walking,playing,false,clock)
 	cast._animate(keeper,clock,state.position2().distance_to(Layout.HUB)<5.5)
+	cast._animate(artemis,clock,state.acorn_state=="planted")
+	artemis.rotation.y = atan2(body.position.x-artemis.position.x,body.position.z-artemis.position.z)
+	for animal in canopy_residents:
+		if animal.visible: cast._animate(animal,clock,true)
 	keeper.rotation.y = atan2(body.position.x-keeper.position.x,body.position.z-keeper.position.z)
 	for id: String in residents:
 		if residents[id].visible: cast._animate(residents[id],clock,true)
@@ -343,9 +417,14 @@ func set_pipes(value: bool) -> void:
 	held_keys.clear()
 	modifiers.clear()
 	playing = value
+	if not value:
+		state.reset_lens()
+		_update_lens_beam()
+		lens_toggle = false
 	state.phrase.clear()
 	music_panel.visible = value
 	pipe_button.text = "Tab · Lower pipes" if value else "Tab · Raise pipes"
+	_layout_ui()
 	update_hud()
 
 func play_midi(pitch: int, held: bool = false) -> void:
@@ -355,10 +434,11 @@ func play_midi(pitch: int, held: bool = false) -> void:
 	else: music.play_note(pitch,0.65)
 	_burst(body.position,2)
 	if state.play_pitch(pitch):
-		map.sync(state.healed)
+		map.sync(state.flags())
 		_burst(_ground(Layout.FINAL),65)
 		save_game()
-		_toast("Water, spores and roots answer together. The branching wood is alive again.")
+		_toast("Artemis bows beneath the young canopy." if state.artemis_finale_done else "Water, spores and roots answer together. The branching wood is alive again.")
+		_sync_relics()
 		show_ending()
 		music.melody([60,64,67,72,76,79],0.18)
 	update_hud()
@@ -366,6 +446,30 @@ func play_midi(pitch: int, held: bool = false) -> void:
 func interact() -> void:
 	if not started or paused or playing: return
 	var position2: Vector2 = state.position2()
+	# Relic and Artemis interactions have explicit spatial boundaries.
+	if position2.distance_to(Layout.ARTEMIS)<=4.0:
+		_apply_quest_event(state.accept_artemis_quest())
+		if state.acorn_state=="planted":
+			music.melody(FINAL_PHRASE,0.5)
+			_toast("Artemis: The roots remember. Answer with Q E U I U E Q.")
+		return
+	if position2.distance_to(Layout.CROWN)<=3.5:
+		save_game()
+		_apply_quest_event(state.plant_acorn())
+		return
+	for repair: String in Layout.ANCHORS:
+		if not state.repair_anchors.has(repair) or state.crossings_complete.has(repair): continue
+		for index in 3:
+			if not state.repair_anchors[repair].has(index) and position2.distance_to(Layout.ANCHORS[repair][index])<=1.6:
+				_apply_quest_event(state.bind_anchor(repair,index))
+				return
+	var target: String = nearest_target()
+	if not target.is_empty():
+		_apply_quest_event(state.activate_relic_target(target))
+		return
+	if position2.distance_to(Layout.SITES.source.position)<=3.5 and state.healed.has("source") and state.inventory.has("lens"):
+		_apply_quest_event(state.activate_relic_target("attune"))
+		return
 	var nearest_id: String = ""
 	var nearest: float = 3.5
 	for id: String in Layout.SITES:
@@ -377,7 +481,7 @@ func interact() -> void:
 		var result: Dictionary = state.try_heal(nearest_id)
 		var site: Dictionary = Layout.SITES[nearest_id]
 		if result.type=="healed":
-			map.sync(state.healed,true)
+			map.sync(state.flags(),true)
 			_set_site_marker(nearest_id)
 			residents[nearest_id].show()
 			_burst(_ground(site.position),42)
@@ -396,6 +500,56 @@ func interact() -> void:
 		else: _toast("The final grove waits for water, living spores and young roots. Heal all three wounded places first.")
 	else: _toast(state.objective())
 	update_hud()
+
+func _update_lens_beam() -> void:
+	lens_beam.visible = state.lens_focused and state.lens_progress>0.0
+	if not lens_beam.visible: return
+	var start: Vector3 = _ground(Layout.TARGETS["west-ridge-roots"].position,0.18)
+	var end: Vector3 = _ground(Vector2(-110,-15),0.18)
+	var progress: float = state.lens_progress/1.5
+	lens_beam.position = start.lerp(end,progress*0.5)
+	lens_beam.look_at(end)
+	lens_beam.scale.z = maxf(0.01,start.distance_to(end)*progress)
+
+func nearest_target() -> String:
+	var best: String = ""
+	var distance: float = 3.5
+	for id: String in Layout.TARGETS:
+		var d: float = state.position2().distance_to(Layout.TARGETS[id].position)
+		if d<=distance:
+			distance = d
+			best = id
+	return best
+
+func _sync_relics() -> void:
+	for id: String in target_markers:
+		target_markers[id].material_override = _material(Color("#addb95") if state.crossings_complete.has(id) else Color("#c7b2e5"))
+	for id: String in anchor_markers:
+		var done: Array = state.repair_anchors.get(id,[])
+		for index in 3:
+			var marker: MeshInstance3D = anchor_markers[id][index]
+			marker.visible = state.repair_anchors.has(id)
+			var next: int = 0
+			while done.has(next): next += 1
+			marker.scale = Vector3.ONE*(1.2 if index==next else 0.8)
+			marker.material_override = _material(Color("#9ccc86") if done.has(index) else Color("#f2d983") if index==next else Color("#b4a981"))
+	for animal in canopy_residents: animal.visible = state.acorn_state=="planted"
+
+func _apply_quest_event(event: Dictionary) -> void:
+	if event.has("text"): _toast(str(event.text))
+	map.sync(state.flags(),true)
+	_sync_relics()
+	if event.get("type","") in ["opened","bound","planted","attuned","acorn"]:
+		_burst(body.position,20)
+		music.melody([62,65,69],0.18)
+	save_game()
+	update_hud()
+
+func toggle_lens_hold() -> void:
+	if not state.lens_focused: return
+	lens_toggle = not lens_toggle
+	if lens_toggle: music.note_on(62,0.65)
+	else: music.note_off(62)
 
 func _burst(origin: Vector3, amount: int) -> void:
 	for i in amount:
@@ -429,7 +583,7 @@ func _exit_tree() -> void:
 func update_hud() -> void:
 	if not is_instance_valid(goal_label): return
 	goal_label.text = state.objective()
-	count_label.text = "%d / 3 lands healed  ·  %d / 3 healing tools" % [state.healed.size(),state.inventory.size()]
+	count_label.text = "%d / 3 lands healed · %d / 5 tools and relics" % [state.healed.size(),state.inventory.size()]
 	var tool_names := PackedStringArray()
 	for id: String in state.inventory: tool_names.append(str(Layout.ITEMS[id].name))
 	inventory_label.text = "Pack: "+(", ".join(tool_names) if not tool_names.is_empty() else "Find tools along the longer trails")
@@ -443,6 +597,20 @@ func update_hud() -> void:
 		if position2.distance_to(Layout.SITES[id].position)<4.0:
 			context_label.text = "E · Inspect healed land" if state.healed.has(id) else "E · Use "+str(Layout.ITEMS[str(Layout.SITES[id].item)].name)+" here"
 	if position2.distance_to(Layout.HUB)<5.5: context_label.text = "E · Ask the keeper about the wounded land"
+	if position2.distance_to(Layout.ARTEMIS)<=4.0: context_label.text = "E · Speak with Artemis"
+	if position2.distance_to(Layout.CROWN)<=3.5: context_label.text = "E · Visit the young canopy" if state.acorn_state=="planted" else "E · Plant Artemis's acorn with the Spindle"
+	var target: String = nearest_target()
+	if not target.is_empty(): context_label.text = "E · "+str(Layout.TARGETS[target].name)
+	for repair: String in Layout.ANCHORS:
+		if not state.repair_anchors.has(repair): continue
+		for index in 3:
+			if not state.repair_anchors[repair].has(index) and position2.distance_to(Layout.ANCHORS[repair][index])<=1.6: context_label.text = "E · Bind root anchor %d / 3" % (index+1)
+	if position2.distance_to(Layout.SITES.source.position)<=3.5 and state.inventory.has("lens") and state.healed.has("source"): context_label.text = "E · Clarify and attune Moon Lens"
+	if lens_button!=null:
+		lens_meter.visible = state.lens_focused
+		lens_meter.value = state.lens_progress/1.5*100.0
+		lens_button.visible = state.lens_focused
+		lens_button.text = "Stop holding D" if lens_toggle else "Hold D · toggle"
 	if position2.distance_to(Layout.FINAL)<6.0: context_label.text = "E · Hear the final phrase · Tab pipes · Q E U I U E Q"
 	for button: Button in key_buttons:
 		var keycode: int = int(button.get_meta("keycode"))
@@ -450,7 +618,7 @@ func update_hud() -> void:
 		button.text = Keyboard.key_name(keycode)+" "+Keyboard.note_name(pitch)
 	if playing:
 		context_label.text = "MBean1 rows play · Space sharpens · PgUp/PgDn octaves · Tab lowers pipes"
-		note_caption.text = "Base C%d · %d / 7 final notes" % [_current_octave(),state.phrase.size()]
+		note_caption.text = ("Moon Lens · D held %d%% · 1.5 seconds · Hold D toggle available" % int(state.lens_progress/1.5*100.0)) if state.lens_focused else "Base C%d · %d / 7 final notes" % [_current_octave(),state.phrase.size()]
 
 func _style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -523,6 +691,13 @@ func _build_ui() -> void:
 	var instrument := VBoxContainer.new()
 	music_panel.add_child(instrument)
 	note_caption = _label(instrument,"MBean1 keyboard",13)
+	lens_button = _button(instrument,"Hold D · toggle",toggle_lens_hold)
+	lens_button.hide()
+	lens_meter = ProgressBar.new()
+	lens_meter.custom_minimum_size.y = 12
+	lens_meter.show_percentage = false
+	instrument.add_child(lens_meter)
+	lens_meter.hide()
 	for row: Dictionary in Keyboard.rows():
 		var keys := HBoxContainer.new()
 		instrument.add_child(keys)
@@ -560,12 +735,15 @@ func _layout_ui() -> void:
 	context_label.position = Vector2(16,size.y-52)
 	context_label.size = Vector2(size.x-32,34)
 	music_panel.position = Vector2((size.x-840)/2.0,size.y-264)
-	toast_label.position = Vector2((size.x-590)/2.0,30)
+	toast_label.position = Vector2((size.x-590)/2.0,size.y-410 if playing else size.y-170)
 	toast_label.size = Vector2(590,78)
 	modal.get_node("Sheet").position = Vector2((size.x-700)/2.0,maxf(15.0,(size.y-690)/2.0))
 
 func _open_modal() -> void:
 	paused = true
+	state.reset_lens()
+	_update_lens_beam()
+	lens_toggle = false
 	touch_move = Vector2.ZERO
 	held_keys.clear()
 	modifiers.clear()
@@ -604,8 +782,13 @@ func show_journal() -> void:
 	overview.custom_minimum_size = Vector2(620,440)
 	overview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	modal_box.add_child(overview)
-	_label(modal_box,"Pale paths are open. Dim paths remember a wound. Circles mark land to heal; gold diamonds mark tools still waiting.",14)
-	_label(modal_box,"Healing tools",23)
+	_label(modal_box,"Pale paths are open; green links are reopened shortcuts. Dim paths await restoration. Circles mark wounded land; gold diamonds mark waiting tools.",14)
+	_label(modal_box,"Artemis and the returning canopy",23)
+	_label(modal_box,"Restore the three wounds → find and attune the Moon Lens and Root Spool → mend both ridge crossings → receive Artemis's acorn → plant at Crown Clearing → return by the new descent and answer Artemis's song.",16)
+	_label(modal_box,"Crossings reopened · %d / 6 new links" % (state.crossings_complete.size()+int(state.acorn_state=="planted")),16)
+	for id: String in Layout.TARGETS:
+		_label(modal_box,("Open · " if state.crossings_complete.has(id) else "Revisit · ")+str(Layout.TARGETS[id].name),15)
+	_label(modal_box,"Tools and relics",23)
 	for id: String in Layout.ITEMS:
 		_label(modal_box,("Carrying · " if state.inventory.has(id) else "Find · ")+str(Layout.ITEMS[id].name)+". "+str(Layout.ITEMS[id].description),16)
 	_label(modal_box,"Places to revisit",23)
@@ -617,13 +800,17 @@ func show_journal() -> void:
 
 func show_ending() -> void:
 	_open_modal()
-	_label(modal_box,"The paths remember one another",30)
+	_label(modal_box,"Under the young canopy" if state.artemis_finale_done else "The paths remember one another",30)
+	if state.artemis_finale_done: _label(modal_box,"Artemis bows. The acorn has taken root, birds return to Crown Clearing, and the opened paths remain yours to wander.",18)
 	_label(modal_box,"You carried water, living spores and young roots back to the places that needed them. The recovered land has connected the wood again.",18)
-	_label(modal_box,"3 lands healed · 3 reusable tools · permanent return paths",16)
+	_label(modal_box,"3 lands healed · 5 reusable tools and relics · young canopy" if state.artemis_finale_done else "3 lands healed · 3 reusable tools · permanent return paths",16)
 	_button(modal_box,"Walk the reopened wood",resume_game)
 	_button(modal_box,"Level select",return_to_select)
 
 func toggle_sound() -> void:
+	state.reset_lens()
+	_update_lens_beam()
+	lens_toggle = false
 	music.muted = not music.muted
 	music.stop()
 	held_keys.clear()

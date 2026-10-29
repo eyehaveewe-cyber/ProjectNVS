@@ -25,7 +25,7 @@ A Windows Desktop export preset is included. Export templates are needed only wh
 
 The game now starts with two level cards. **The Quiet Bloom** keeps the existing valley, nine sanctuaries and open woodland. **The Returning Wood** is a separate journey built around long curling branches, healing tools and returns to earlier wounds. Both levels are available from the start. Begin replaces only the selected journey after a second click when a save already exists; Continue resumes that journey. Press Escape in either level and choose **Level select** to switch.
 
-The Returning Wood has eight authored paths and three unlockable shortcuts, totaling 1,068.86 units of route centerline. Low banks define the walks inside 180 by 180 unit bounds. From the Turning Glade, the western and eastern curls lead to tools that restore places you passed earlier.
+The Returning Wood now has fourteen primary paths and nine unlockable shortcuts, totaling 3,114.33 units of centerline inside 312 by 312 unit bounds. That is 3 times its previous bounded area and 2.91 times its route length. The original curls now connect to wetlands, burned woodland, a northern ridge and southern return walks.
 
 | Tool | Where to find it | Where to return | What healing opens |
 | --- | --- | --- | --- |
@@ -33,11 +33,25 @@ The Returning Wood has eight authored paths and three unlockable shortcuts, tota
 | Living Spore | Eastern curl | The Sealed Hollow | Eastern shortcut |
 | Rootheart Spindle | Northern spiral, after healing the source | The Ash Scar | Northern shortcut |
 
-Approach a tool to collect it. Lower the pipes and press **E** near its matching wound to heal the land. Tools stay in your pack. Water, new growth and returning woodland residents show what changed. After all three places recover, the route to the Joined Grove opens. Raise the pipes with **Tab** and play **Q E U I U E Q**, in any octave, to complete this journey.
+Approach a tool to collect it. Lower the pipes and press **E** near its matching wound to heal the land. Tools stay in your pack. Water, new growth and returning woodland residents show what changed. After all three places recover, the route to the Joined Grove opens. Raise the pipes with **Tab** and play **Q E U I U E Q**, in any octave, to complete the original grove song. Artemis has a further request.
 
 Press **J** with the pipes lowered for the route map, tool descriptions and places to revisit. Pale paths are open; dim paths remain closed by a wound. The second level reuses the native faun, full MBean1 keyboard, pipe audio and woodland cast, with its own quest inventory and route state. The [design addendum](docs/ProjectNVS_Woodland_Expansion.docx) records the human request and the implementation choices for this milestone.
 
-Second-level native verification passes 82 progression checks and 71 route checks. The progression journey walks from entry through the healing objectives and final song without relocating the faun. The route audit checks physical gate reachability across the full floor and walks every route outward and back. See [progression results](docs/secondwood-progression-verification.json) and [traversal results](docs/secondwood-traversal-verification.json) for the exact scope.
+Speak with the giant deer **Artemis** at the Turning Glade. Her quest asks you to heal the three wounds, reconnect the western and eastern ridge crossings, carry her acorn to **Crown Clearing**, then return along the new descent to play **Q E U I U E Q** beside her. Planting grows a young canopy and brings back small creatures. The grove song and Artemis's finale keep separate progress.
+
+| Relic or return | Interaction |
+| --- | --- |
+| Moon Lens, Mirror Wetland | Bring the Spring Vessel to collect it, then press E at the restored Dry Source to attune it. Focus the western Moon Plinth with E, raise pipes and sustain natural D for 1.5 seconds. Any octave works; the on-screen Hold D toggle offers the same action. |
+| Root Spool, Cinder Loom | Bring the Living Spore to wake it. Press E at the eastern bridge, then walk to and bind each of three numbered stumps with E. Partial work is saved. Reuse the Spool at the healed Ash Scar. |
+| Wetland sluice | Reuse the Spring Vessel at the outer wetland to open a return to the Dry Source. |
+| Southern latch | Reach the eastern end of the southern walk and press E to join both outer branches. |
+| Artemis's acorn | Artemis gives it after the three healings and both ridge repairs. Plant it at Crown Clearing with the retained Rootheart Spindle. It cannot be dropped or wasted. |
+
+Version 1 second-level saves migrate automatically. Earlier tools, wounds and valid saved positions remain intact; a finished old grove can still begin Artemis's new quest. The first valley continues to use its separate save.
+
+Second-level native verification passes 104 continuous progression checks, 137 route checks and 48 isolated relic/save checks. The complete quest uses the real controller and physical musical keys, with no relocations. A separate route sweep checks every route in both directions. The floor-distance audit measures every shortcut with the other links already available. See [implementation notes](docs/ARTEMIS_IMPLEMENTATION.md), [progression results](docs/secondwood-progression-verification.json), [traversal results](docs/secondwood-traversal-verification.json) and [shortcut distances](docs/secondwood-shortcut-verification.json).
+
+![Expanded second woodland journal](docs/artemis-expanded-map.jpg)
 
 ## Far woodland expansion 28 October 2026
 
@@ -165,6 +179,9 @@ godot --headless --path . --script tests/woodland_traversal.gd
 godot --headless --path . --script tests/woodland_expansion.gd
 godot --headless --path . --script tests/secondwood_progression.gd
 godot --headless --path . --script tests/secondwood_traversal.gd
+godot --headless --path . --script tests/secondwood_relics.gd
+godot --headless --path . --script tools/audit-secondwood.gd
+python tools/audit-secondwood-shortcuts.py
 ```
 
 These exercise the native scene, movement input, all nine sites, the ending, actual save/Continue, malformed save handling, rest, held music, optional discoveries, rain, creature cleansing, Artemis and native PCM audio data. The route audit samples 3,513 collision points; the controller traverses all eleven trails forward and backward, plus off-trail and world-edge probes. The integration journey relocates the faun between discoveries and lets the squirrel move through its actual update loop; it also saves and resumes in the new country. This is not a first-time navigation or target-hardware performance test. See [Godot verification](docs/godot-verification.json) and [native port notes](docs/GODOT_PORT.md).

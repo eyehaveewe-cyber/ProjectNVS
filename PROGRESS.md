@@ -1,8 +1,18 @@
 # Project NVS progress
 
-## Artemis expansion handoff planned 2026-10-28
+## Artemis expansion implemented 2026-10-28
 
-H009 requests roughly three times the second level, more shortcuts and relic interactions, and an Artemis questline for Terra to implement. The implementation handoff is in `docs/TERRA_EXPANSION_PLAN.txt` and design revision 0.5. Proposed targets are 312 by 312 bounds, about 3,200 units of paths and nine total shortcuts. Two reusable relics, persistent root repairs and an acorn planting lead to a changed return to Artemis. These are planning targets; the enlarged map and quest have not been implemented or tested.
+H009's second-level expansion is now playable in the native Godot source. The old core, original tool/site IDs, first valley and independent saves remain intact. The earlier revision 0.5 handoff is retained as design history; `docs/ARTEMIS_IMPLEMENTATION.md` records the delivered behavior and evidence.
+
+- [x] Expanded bounds to 312 by 312 units, 97,344 square units, 3.004 times the old area. Fourteen primary walks and nine shortcuts total 3,114.33 units, 2.914 times the old centerline length. Western wetlands, eastern burned woodland, a northern ridge and southern return walks extend the old core.
+- [x] Added six permanent bidirectional links. A one-unit floor raster finds 50.9–97.1 percent shorter endpoint trips for the six new links, with every other route already available. All nine links improve their measured endpoint trip by at least 50 percent.
+- [x] Implemented the Moon Lens, restored-source attunement, focused natural-D sustain across octaves, visible tracing beam/progress meter and accessible Hold D toggle. Release, wrong notes, lowering pipes, pause, mute and focus loss clear incomplete holds without deleting permanent progress.
+- [x] Implemented reusable Root Spool repairs with three spatial anchors per bridge, numbered stumps, next-anchor highlighting, partial save/resume and a second repair at the healed Ash Scar.
+- [x] Artemis gives the local quest in her giant-deer form. Heal three wounds, follow either relic branch first, mend both ridge crossings, receive her unique acorn, plant it with the Spindle, return by the new ridge descent and answer Q E U I U E Q. The reward is a young canopy, returning creatures and free exploration.
+- [x] Version 2 saves preserve version 1 tools, healings, valid positions and the old grove completion. Artemis's acceptance, relics, partial repairs, unique acorn and new finale persist independently. Invalid positions use the nearest authored safe vertex.
+- [x] Native verification passes 104 continuous progression checks, 137 route checks and 48 isolated relic/save checks. The controller quest walks 4,866.29 units with zero relocations. Route sweeps walk all 23 routes both ways, using one starting fixture per route. Seven native screenshots were inspected. The original five Godot suites and 14 browser tests also pass.
+
+These checks establish implemented progression, collision, persistence and appearance. The raster measures unique floor cells, not exact continuous area. Human wayfinding, human listening and target-hardware frame rate remain unmeasured. Screenshots use arranged fixtures; the continuous quest report does not.
 
 ## Level select and second woodland 2026-10-28
 

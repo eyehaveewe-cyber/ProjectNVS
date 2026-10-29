@@ -70,7 +70,7 @@ func walk_to(target: Vector2, expect_arrival: bool = true) -> Dictionary:
 		walked += moved
 		distance_walked += moved
 		stalls = stalls+1 if moved<0.00001 else 0
-		if moved>SPEED*STEP+0.002 or not game.map.is_clear(after.x,after.y,game.state.healed): bad_steps += 1
+		if moved>SPEED*STEP+0.002 or not game.map.is_clear(after.x,after.y,game.state.flags()): bad_steps += 1
 		if stalls>=10: break
 	game.touch_move = Vector2.ZERO
 	var error: float = position2().distance_to(target)
@@ -101,6 +101,63 @@ func walk_route(id: String, backwards: bool = false) -> void:
 	var label: String = id+(" return" if backwards else " outward")
 	check("Controller walks "+label+" continuously",success and bad_steps==0)
 	journeys.append({"route":id,"direction":"return" if backwards else "outward","distance":distance_walked,"arrived":success,"bad_steps":bad_steps})
+
+func line_clear(a: Vector2,b: Vector2) -> bool:
+	var count: int = maxi(1,ceili(a.distance_to(b)*4.0))
+	for i in range(count+1):
+		var point: Vector2 = a.lerp(b,float(i)/count)
+		if not Layout.is_walkable(point,game.state.flags()): return false
+	return true
+
+func travel(target: Vector2) -> void:
+	var graph: Dictionary = {}
+	for definition: Dictionary in Layout.all_routes():
+		if not Layout.requirements_met(definition.requires,game.state.flags()): continue
+		for vertex: Vector2 in definition.points:
+			if not graph.has(vertex): graph[vertex] = {}
+		for i in range(1,definition.points.size()):
+			var a: Vector2 = definition.points[i-1]
+			var b: Vector2 = definition.points[i]
+			graph[a][b] = a.distance_to(b)
+			graph[b][a] = a.distance_to(b)
+	var start: Vector2 = position2()
+	# Join only locally visible floor, never teleport to the graph.
+	for extra: Vector2 in [start,target]:
+		var nearest: Vector2 = Layout.ENTRY
+		var best: float = INF
+		for vertex: Vector2 in graph.keys():
+			if extra.distance_to(vertex)<best and line_clear(extra,vertex):
+				nearest = vertex
+				best = extra.distance_to(vertex)
+		if not graph.has(extra): graph[extra] = {}
+		graph[extra][nearest] = best
+		graph[nearest][extra] = best
+	var distance: Dictionary = {start:0.0}
+	var previous: Dictionary = {}
+	var pending: Array = [start]
+	while not pending.is_empty():
+		pending.sort_custom(func(a: Vector2,b: Vector2) -> bool: return distance[a]<distance[b])
+		var here: Vector2 = pending.pop_front()
+		if here==target: break
+		for next: Vector2 in graph[here]:
+			var cost: float = float(distance[here])+float(graph[here][next])
+			if cost<float(distance.get(next,INF)):
+				distance[next] = cost
+				previous[next] = here
+				if not pending.has(next): pending.append(next)
+	if not distance.has(target):
+		check("Route graph reaches "+str(target),false)
+		return
+	var steps: Array = [target]
+	var at: Vector2 = target
+	while at!=start:
+		at = previous[at]
+		steps.push_front(at)
+	for i in range(1,steps.size()):
+		var result: Dictionary = walk_to(steps[i])
+		if float(result.endpoint_error)>=0.25:
+			check("Continuous expansion travel reaches "+str(steps[i]),false)
+			return
 
 func isolated_menu() -> Node:
 	var selected: Node = Start.instantiate()
@@ -159,7 +216,7 @@ func run() -> void:
 	game.resume_game()
 	walk_route("arrival")
 	await tap(KEY_E)
-	check("Keeper explains the current healing objective",game.toast_label.text.begins_with("Keeper:") and game.toast_label.text.contains("Spring Vessel"))
+	check("Keeper explains the current healing objective",game.toast_label.text.begins_with("Artemis:") and game.state.artemis_accepted and game.toast_label.text.contains("Spring Vessel"))
 	for site_id: String in ["source","hollow","ash"]:
 		walk_route(site_id+"-approach")
 		await tap(KEY_E)
@@ -217,7 +274,7 @@ func run() -> void:
 	walk_route("ash-cut",true)
 	game.save_game()
 	var saved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SECOND_SAVE))
-	check("On-disk save records all tools and healed shortcuts without claiming the ending",saved.version==1 and saved.inventory.size()==3 and saved.healed.size()==3 and not saved.won)
+	check("On-disk save records all tools and healed shortcuts without claiming the ending",saved.version==2 and saved.inventory.size()==3 and saved.healed.size()==3 and not saved.won)
 	var saved_position: Vector2 = position2()
 	game.start_level(true)
 	game.camera_yaw = 0.0
@@ -238,6 +295,91 @@ func run() -> void:
 	check("Completion preserves all healing tools for further revisits",game.state.inventory.size()==3)
 	game.start_level(true)
 	check("Completed chapter reloads with completion and every shortcut",game.state.won and game.state.healed.size()==3 and not game.map.gates["final-curl"].visible)
+	# Continue the old completed journey into Artemis's expansion without relocating.
+	check("Old grove completion does not finish Artemis quest",game.state.won and not game.state.artemis_finale_done)
+	travel(Layout.ARTEMIS)
+	game.interact()
+	travel(Layout.SPOOL)
+	check("Eastern relic can be found first using the existing Living Spore",game.state.inventory.has("spool"))
+	travel(Layout.TARGETS["east-root-bridge"].position)
+	game.interact()
+	travel(Layout.ANCHORS["east-root-bridge"][0])
+	game.interact()
+	game.save_game()
+	game.start_level(true)
+	game.camera_yaw = 0.0
+	check("Continue preserves partial spatial root repair",game.state.repair_anchors.get("east-root-bridge",[]).size()==1)
+	for index in [1,2]:
+		travel(Layout.ANCHORS["east-root-bridge"][index])
+		game.interact()
+	check("Three local E bindings reconnect the eastern bridge",game.state.crossings_complete.has("east-root-bridge") and not game.map.gates["east-root-bridge"].visible and game.map.bridge_nodes["east-root-bridge"].visible)
+	travel(Layout.TARGETS["south-return"].position)
+	game.interact()
+	check("Far southern latch joins both outer branches",game.state.crossings_complete.has("south-return"))
+	travel(Layout.LENS)
+	check("Western relic is cleaned with the retained Vessel",game.state.inventory.has("lens"))
+	game.interact()
+	check("Vessel repairs a second site at wetland sluice",game.state.crossings_complete.has("west-sluice") and game.state.inventory.has("vessel"))
+	travel(Layout.SITES.source.position)
+	game.interact()
+	check("Revisiting restored source attunes the Moon Lens",game.state.relic_attunements.has("lens"))
+	travel(Layout.TARGETS["west-ridge-roots"].position)
+	game.interact()
+	game.set_pipes(true)
+	await key(KEY_W)
+	game._physics_process(0.7)
+	check("Lens shows partial progress for physical D",game.state.lens_progress>0.6 and game.lens_beam.visible and game.lens_beam.scale.z>10 and not game.state.crossings_complete.has("west-ridge-roots"))
+	await key(KEY_W,false)
+	game._physics_process(0.1)
+	check("Releasing D resets only incomplete hold",game.state.lens_progress==0 and game.state.lens_focused)
+	await key(KEY_E)
+	game._physics_process(2.0)
+	await key(KEY_E,false)
+	check("Wrong pitch never opens Moon crossing",not game.state.crossings_complete.has("west-ridge-roots"))
+	game._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	check("Focus loss pauses and cancels incomplete lens hold",game.paused and not game.state.lens_focused and not game.lens_beam.visible and game.held_keys.is_empty())
+	game.resume_game()
+	game.set_pipes(false)
+	game.interact()
+	game.set_pipes(true)
+	game.toggle_sound()
+	check("Mute cancels lens focus and releases notes",not game.state.lens_focused and game.held_keys.is_empty())
+	game.set_pipes(false)
+	game.interact()
+	game.set_pipes(true)
+	game.lens_button.pressed.emit()
+	game._physics_process(1.6)
+	check("Accessible Hold D toggle permanently reveals western roots",game.state.crossings_complete.has("west-ridge-roots") and not game.map.gates["west-ridge-roots"].visible)
+	game.set_pipes(false)
+	travel(Layout.TARGETS["ash-east-cut"].position)
+	game.interact()
+	for index in 3:
+		travel(Layout.ANCHORS["ash-east-cut"][index])
+		game.interact()
+	check("Root Spool remains reusable at a second crossing",game.state.crossings_complete.has("ash-east-cut") and game.state.inventory.has("spool"))
+	travel(Layout.ARTEMIS)
+	game.interact()
+	check("Artemis entrusts acorn after both crossings and three healings",game.state.acorn_state=="carried")
+	game.save_game()
+	game.start_level(true)
+	game.camera_yaw = 0.0
+	check("Carried unique acorn survives Continue",game.state.acorn_state=="carried")
+	travel(Layout.CROWN)
+	game.interact()
+	check("Planting with Spindle grows young canopy and opens descent",game.state.acorn_state=="planted" and game.map.sapling.visible and not game.map.gates["ridge-descent"].visible and game.state.inventory.has("spindle"))
+	game.save_game()
+	game.start_level(true)
+	game.camera_yaw = 0.0
+	check("Planted acorn and changed world survive Continue",game.state.acorn_state=="planted" and game.map.sapling.visible)
+	walk_route("ridge-descent")
+	travel(Layout.ARTEMIS)
+	game.interact()
+	game.set_pipes(true)
+	for note_key: int in [KEY_Q,KEY_E,KEY_U,KEY_I,KEY_U,KEY_E,KEY_Q]: await tap(note_key)
+	check("Changed return and physical song complete Artemis quest",game.state.artemis_finale_done and game.paused)
+	game.start_level(true)
+	game.camera_yaw = 0.0
+	check("New finale persists independently of original won flag",game.state.artemis_finale_done and game.state.won and game.state.inventory.size()==5)
 	var malformed := State.new()
 	malformed.restore({"player":{"x":INF,"z":"bad","yaw":100000000},"inventory":["spindle","spindle","fake"],"healed":["ash","source","fake"],"won":true,"elapsed":-100})
 	check("Malformed save rejects unknown IDs, impossible Spindle and false completion",malformed.inventory.is_empty() and malformed.healed.is_empty() and not malformed.won and malformed.player.x==Layout.ENTRY.x and malformed.player.z==Layout.ENTRY.y and malformed.elapsed==0)
@@ -263,7 +405,7 @@ func run() -> void:
 	game.set_process(false)
 	game.music.muted = true
 	game.music.stop()
-	check("Startup Continue actually loads completed chapter-two progress",game.state.won and game.state.inventory.size()==3 and game.save_path==SECOND_SAVE)
+	check("Startup Continue actually loads completed chapter-two progress",game.state.won and game.state.artemis_finale_done and game.state.inventory.size()==5 and game.save_path==SECOND_SAVE)
 	check("Chapter-two actions leave first-journey save byte-for-byte unchanged",FileAccess.get_file_as_bytes(VALLEY_SAVE)==valley_sentinel)
 	game.save_enabled = false
 	game.queue_free()
@@ -314,7 +456,7 @@ func run() -> void:
 		check("Test never changes the real player save "+path,actual==real_save_bytes[path])
 	cleanup_save(SECOND_SAVE)
 	cleanup_save(VALLEY_SAVE)
-	var report: Dictionary = {"engine":Engine.get_version_info().string,"status":"passed" if failures.is_empty() else "failed","checks":checks,"failures":failures,"routes":journeys,"controller_steps":controller_steps,"walked_distance":walked,"simulated_seconds":controller_steps*STEP,"player_relocations":0,"scope":"The quest journey starts through the real selection button, then walks authored paths continuously using the real chapter-two controller, including three newly opened shortcuts and return visits. Healing and the final song use physical keyboard events. Save/Continue resets the scene from its own on-disk record. Separate scene reconstruction tests Continue for both chapters and a confirmed first-valley reset while retaining chapter two. No spatial relocation or direct quest mutation is used for gameplay progress. Fixed simulated steps are not a frame-rate or human wayfinding measurement."}
+	var report: Dictionary = {"engine":Engine.get_version_info().string,"status":"passed" if failures.is_empty() else "failed","checks":checks,"failures":failures,"routes":journeys,"controller_steps":controller_steps,"walked_distance":walked,"simulated_seconds":controller_steps*STEP,"player_relocations":0,"scope":"The quest journey starts through the real selection button, then walks authored paths continuously using the real chapter-two controller, including original healing, both relics, six new shortcuts, partial repair save/resume, acorn planting and final return. Healing and the final song use physical keyboard events. Save/Continue resets the scene from its own on-disk record. Separate scene reconstruction tests Continue for both chapters and a confirmed first-valley reset while retaining chapter two. No spatial relocation or direct quest mutation is used for gameplay progress. Fixed simulated steps are not a frame-rate or human wayfinding measurement."}
 	var output := FileAccess.open("res://docs/secondwood-progression-verification.json",FileAccess.WRITE)
 	output.store_string(JSON.stringify(report,"  "))
 	output.close()

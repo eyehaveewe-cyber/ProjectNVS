@@ -1,5 +1,5 @@
 {
-  "centerline_samples": 2233,
+  "centerline_samples": 6420,
   "checks": [
     "Second wood has long authored branching and curling walks",
     "Added shortcuts are shorter traversable connections",
@@ -14,6 +14,12 @@
     "source-cut changes blocked ground into a usable return",
     "hollow-cut changes blocked ground into a usable return",
     "ash-cut changes blocked ground into a usable return",
+    "west-sluice changes blocked ground into a usable return",
+    "west-ridge-roots changes blocked ground into a usable return",
+    "east-root-bridge changes blocked ground into a usable return",
+    "ash-east-cut changes blocked ground into a usable return",
+    "south-return changes blocked ground into a usable return",
+    "ridge-descent changes blocked ground into a usable return",
     "Long-frame movement cannot tunnel through a closed northern walk",
     "Distant unmarked terrain and outside-world points stay behind banks",
     "arrival outward physically reaches every waypoint",
@@ -56,6 +62,36 @@
     "final-curl return physically reaches every waypoint",
     "final-curl return never stalls or crosses its visible bank",
     "final-curl returns to its start without another relocation",
+    "wetland-curl outward physically reaches every waypoint",
+    "wetland-curl outward never stalls or crosses its visible bank",
+    "wetland-curl return physically reaches every waypoint",
+    "wetland-curl return never stalls or crosses its visible bank",
+    "wetland-curl returns to its start without another relocation",
+    "cinder-curl outward physically reaches every waypoint",
+    "cinder-curl outward never stalls or crosses its visible bank",
+    "cinder-curl return physically reaches every waypoint",
+    "cinder-curl return never stalls or crosses its visible bank",
+    "cinder-curl returns to its start without another relocation",
+    "west-ridge outward physically reaches every waypoint",
+    "west-ridge outward never stalls or crosses its visible bank",
+    "west-ridge return physically reaches every waypoint",
+    "west-ridge return never stalls or crosses its visible bank",
+    "west-ridge returns to its start without another relocation",
+    "east-ridge outward physically reaches every waypoint",
+    "east-ridge outward never stalls or crosses its visible bank",
+    "east-ridge return physically reaches every waypoint",
+    "east-ridge return never stalls or crosses its visible bank",
+    "east-ridge returns to its start without another relocation",
+    "south-west outward physically reaches every waypoint",
+    "south-west outward never stalls or crosses its visible bank",
+    "south-west return physically reaches every waypoint",
+    "south-west return never stalls or crosses its visible bank",
+    "south-west returns to its start without another relocation",
+    "south-east outward physically reaches every waypoint",
+    "south-east outward never stalls or crosses its visible bank",
+    "south-east return physically reaches every waypoint",
+    "south-east return never stalls or crosses its visible bank",
+    "south-east returns to its start without another relocation",
     "source-cut outward physically reaches every waypoint",
     "source-cut outward never stalls or crosses its visible bank",
     "source-cut return physically reaches every waypoint",
@@ -71,18 +107,48 @@
     "ash-cut return physically reaches every waypoint",
     "ash-cut return never stalls or crosses its visible bank",
     "ash-cut returns to its start without another relocation",
+    "west-sluice outward physically reaches every waypoint",
+    "west-sluice outward never stalls or crosses its visible bank",
+    "west-sluice return physically reaches every waypoint",
+    "west-sluice return never stalls or crosses its visible bank",
+    "west-sluice returns to its start without another relocation",
+    "west-ridge-roots outward physically reaches every waypoint",
+    "west-ridge-roots outward never stalls or crosses its visible bank",
+    "west-ridge-roots return physically reaches every waypoint",
+    "west-ridge-roots return never stalls or crosses its visible bank",
+    "west-ridge-roots returns to its start without another relocation",
+    "east-root-bridge outward physically reaches every waypoint",
+    "east-root-bridge outward never stalls or crosses its visible bank",
+    "east-root-bridge return physically reaches every waypoint",
+    "east-root-bridge return never stalls or crosses its visible bank",
+    "east-root-bridge returns to its start without another relocation",
+    "ash-east-cut outward physically reaches every waypoint",
+    "ash-east-cut outward never stalls or crosses its visible bank",
+    "ash-east-cut return physically reaches every waypoint",
+    "ash-east-cut return never stalls or crosses its visible bank",
+    "ash-east-cut returns to its start without another relocation",
+    "south-return outward physically reaches every waypoint",
+    "south-return outward never stalls or crosses its visible bank",
+    "south-return return physically reaches every waypoint",
+    "south-return return never stalls or crosses its visible bank",
+    "south-return returns to its start without another relocation",
+    "ridge-descent outward physically reaches every waypoint",
+    "ridge-descent outward never stalls or crosses its visible bank",
+    "ridge-descent return physically reaches every waypoint",
+    "ridge-descent return never stalls or crosses its visible bank",
+    "ridge-descent returns to its start without another relocation",
     "Traversal leaves the isolated save disabled"
   ],
-  "controller_steps": 13382,
+  "controller_steps": 38976,
   "engine": "4.7.2-stable (official)",
   "failures": [],
-  "path_length": 971.319418907166,
+  "path_length": 2481.1871843338,
   "reachable_floor_cells": {
-    "all_healed": 5846,
-    "initial": 3292,
-    "source_healed": 4676
+    "all_healed": 13903,
+    "initial": 11316,
+    "source_healed": 12700
   },
-  "route_starting_relocations": 11,
+  "route_starting_relocations": 23,
   "routes": [
     {
       "forward": {
@@ -208,6 +274,96 @@
       "forward": {
         "bad_steps": 0,
         "stalls": 0,
+        "walked": 272.529285557568,
+        "waypoints": 9
+      },
+      "id": "wetland-curl",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 272.529391407967,
+        "waypoints": 9
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 273.334706604481,
+        "waypoints": 9
+      },
+      "id": "cinder-curl",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 273.392613403499,
+        "waypoints": 9
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 386.54276163131,
+        "waypoints": 12
+      },
+      "id": "west-ridge",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 386.536843933165,
+        "waypoints": 12
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 191.632185772061,
+        "waypoints": 6
+      },
+      "id": "east-ridge",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 191.62401355058,
+        "waypoints": 6
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 200.995760206133,
+        "waypoints": 6
+      },
+      "id": "south-west",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 200.955786958337,
+        "waypoints": 6
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 184.671640560031,
+        "waypoints": 6
+      },
+      "id": "south-east",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 184.667527280748,
+        "waypoints": 6
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
         "walked": 35.0097312480211,
         "waypoints": 3
       },
@@ -248,10 +404,100 @@
         "walked": 34.4098980352283,
         "waypoints": 3
       }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 128.548754744232,
+        "waypoints": 5
+      },
+      "id": "west-sluice",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 128.518830806017,
+        "waypoints": 5
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 120.441126465797,
+        "waypoints": 3
+      },
+      "id": "west-ridge-roots",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 120.391096912324,
+        "waypoints": 3
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 109.834005542099,
+        "waypoints": 3
+      },
+      "id": "east-root-bridge",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 109.832851201296,
+        "waypoints": 3
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 105.312537536025,
+        "waypoints": 3
+      },
+      "id": "ash-east-cut",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 105.298539698124,
+        "waypoints": 3
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 20.0,
+        "waypoints": 1
+      },
+      "id": "south-return",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 20.0,
+        "waypoints": 1
+      }
+    },
+    {
+      "forward": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 51.4387564361095,
+        "waypoints": 3
+      },
+      "id": "ridge-descent",
+      "return": {
+        "bad_steps": 0,
+        "stalls": 0,
+        "walked": 51.4015408158302,
+        "waypoints": 3
+      }
     }
   ],
   "scope": "Unit-grid full-floor flood fills test physical gate reachability and accidental spatial bypasses at three progression states. Half-unit samples audit authored centerlines. Controller sweeps use explicit completed-state fixtures, one relocation per route, and walk each route forward and backward; a separate real progression test earns that state continuously. These are not first-time navigation or hardware performance measurements.",
-  "shortcut_length": 97.5416793823242,
+  "shortcut_length": 633.144119262695,
   "shortcut_samples": [
     {
       "id": "source-cut",
@@ -264,10 +510,34 @@
     {
       "id": "ash-cut",
       "new_walkable_samples": 29
+    },
+    {
+      "id": "west-sluice",
+      "new_walkable_samples": 47
+    },
+    {
+      "id": "west-ridge-roots",
+      "new_walkable_samples": 28
+    },
+    {
+      "id": "east-root-bridge",
+      "new_walkable_samples": 26
+    },
+    {
+      "id": "ash-east-cut",
+      "new_walkable_samples": 30
+    },
+    {
+      "id": "south-return",
+      "new_walkable_samples": 6
+    },
+    {
+      "id": "ridge-descent",
+      "new_walkable_samples": 30
     }
   ],
-  "simulated_seconds": 669.1,
+  "simulated_seconds": 1948.8,
   "status": "passed",
-  "total_authored_length": 1068.86109828949,
-  "walked_distance": 2137.25206255168
+  "total_authored_length": 3114.3313035965,
+  "walked_distance": 6227.68261957541
 }

@@ -1,0 +1,185 @@
+{
+  "status": "passed",
+  "failures": [],
+  "area": 97344.0,
+  "area_ratio": 3.0044444444444443,
+  "route_length": 3114.3313035965,
+  "route_ratio": 2.9136902242212863,
+  "walkable_unit_grid_cells": 16227,
+  "initial_walkable_unit_grid_cells": 11318,
+  "shortcuts": [
+    {
+      "id": "source-cut",
+      "endpoints": [
+        [
+          -15.0,
+          25.0
+        ],
+        [
+          -48.0,
+          15.0
+        ]
+      ],
+      "requires": [
+        "source"
+      ],
+      "before": 165.3259018078046,
+      "after": 37.142135623730944,
+      "saving": 0.7753398879571237
+    },
+    {
+      "id": "hollow-cut",
+      "endpoints": [
+        [
+          18.0,
+          20.0
+        ],
+        [
+          42.0,
+          14.0
+        ]
+      ],
+      "requires": [
+        "hollow"
+      ],
+      "before": 188.5096679918783,
+      "after": 28.142135623730955,
+      "saving": 0.8507125076208641
+    },
+    {
+      "id": "ash-cut",
+      "endpoints": [
+        [
+          0.0,
+          -5.0
+        ],
+        [
+          14.0,
+          -35.0
+        ]
+      ],
+      "requires": [
+        "ash"
+      ],
+      "before": 199.965512114594,
+      "after": 35.79898987322333,
+      "saving": 0.8209741795239769
+    },
+    {
+      "id": "west-sluice",
+      "endpoints": [
+        [
+          -122.0,
+          10.0
+        ],
+        [
+          -15.0,
+          25.0
+        ]
+      ],
+      "requires": [
+        "west-sluice"
+      ],
+      "before": 345.6639969244294,
+      "after": 133.74011537017753,
+      "saving": 0.6130921456670642
+    },
+    {
+      "id": "west-ridge-roots",
+      "endpoints": [
+        [
+          -122.0,
+          10.0
+        ],
+        [
+          -70.0,
+          -98.0
+        ]
+      ],
+      "requires": [
+        "west-ridge-roots"
+      ],
+      "before": 321.4213562373102,
+      "after": 129.53910524340083,
+      "saving": 0.5969804036675144
+    },
+    {
+      "id": "east-root-bridge",
+      "endpoints": [
+        [
+          122.0,
+          -15.0
+        ],
+        [
+          60.0,
+          -98.0
+        ]
+      ],
+      "requires": [
+        "east-root-bridge"
+      ],
+      "before": 236.72287142747493,
+      "after": 116.29646455628153,
+      "saving": 0.5087231586242759
+    },
+    {
+      "id": "ash-east-cut",
+      "endpoints": [
+        [
+          0.0,
+          -5.0
+        ],
+        [
+          98.0,
+          -35.0
+        ]
+      ],
+      "requires": [
+        "ash",
+        "ash-east-cut"
+      ],
+      "before": 332.6761902332494,
+      "after": 110.42640687119281,
+      "saving": 0.6680663957532713
+    },
+    {
+      "id": "south-return",
+      "endpoints": [
+        [
+          0.0,
+          120.0
+        ],
+        [
+          20.0,
+          120.0
+        ]
+      ],
+      "requires": [
+        "south-return"
+      ],
+      "before": 687.7127701597099,
+      "after": 20.0,
+      "saving": 0.9709180912907065
+    },
+    {
+      "id": "ridge-descent",
+      "endpoints": [
+        [
+          0.0,
+          -130.0
+        ],
+        [
+          -12.0,
+          -82.0
+        ]
+      ],
+      "requires": [
+        "planted"
+      ],
+      "before": 387.4041122946072,
+      "after": 52.97056274847711,
+      "saving": 0.8632679389107908
+    }
+  ],
+  "scope": "Eight-neighbor one-unit raster shortest floor paths with diagonal corner protection. Before excludes only this shortcut, keeping every other route and capability open. Raster distances approximate walking, not centerline graph distances."
+}
